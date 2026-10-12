@@ -114,14 +114,14 @@ export const AuthLayout = () => {
         {/* Left panel — trophy */}
         <div className="relative flex flex-col items-center justify-end rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
           <FireParticles />
-          {/* Trophy chiếm toàn bộ phần trên */}
+          {/* Trophy to, tràn 2 bên */}
           <img
             src="/champion-trophy.png"
             alt="Champion Trophy"
-            className="auth-trophy-float w-full px-4 pt-4"
+            className="auth-trophy-float w-[140%] -mx-[20%] mt-[-5%]"
             style={{ filter: 'drop-shadow(0 0 50px rgba(251,146,60,0.6))' }}
           />
-          <div className="w-full px-8 pb-8">
+          <div className="w-full px-8 pb-8 -mt-4">
             <h1 className="text-center text-2xl font-bold text-white">Champion League System</h1>
           <p className="mt-2 text-center text-sm text-white/60">
             Hệ thống quản lý giải đấu esports — vòng bảng, bracket, kết quả trận đấu theo thời gian thực.
