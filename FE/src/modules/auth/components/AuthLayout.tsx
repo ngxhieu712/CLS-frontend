@@ -55,7 +55,7 @@ export const AuthLayout = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="relative flex min-h-screen w-full items-center justify-center bg-[#090d16] p-4 md:p-8">
+    <main className="relative flex min-h-screen w-full items-center justify-center bg-[#090d16] px-4 py-32 md:px-8">
       {/* Polygon bg */}
       <div className="absolute inset-0 overflow-hidden">
         <PolygonBg />
@@ -66,26 +66,24 @@ export const AuthLayout = () => {
         <ThemeToggle />
       </div>
 
-      <section className="relative z-10 grid w-full max-w-5xl gap-8 pt-20 md:grid-cols-2 md:pt-24">
+      <section className="relative z-10 grid w-full max-w-5xl gap-6 md:grid-cols-2">
 
-        {/* LEFT CARD — overflow:visible để cúp tràn lên trên */}
+        {/* ===== LEFT CARD ===== */}
         <div
-          className="relative rounded-2xl border border-[#1e293b] bg-[#121826] px-8 pb-8 pt-28"
-          style={{ overflow: 'visible' }}
+          className="relative rounded-2xl border border-[#1e293b] bg-[#121826] px-8 pb-8 pt-40"
+          style={{ position: 'relative', overflow: 'visible' }}
         >
-          {/* Trophy — absolute, top âm để tràn lên trên viền card */}
+          {/* Trophy: absolute, top âm, căn giữa, to */}
           <img
             src="/champion-trophy.png"
             alt="Champion Trophy"
-            className="auth-trophy-float absolute z-20"
+            className="auth-trophy-float absolute z-30"
             style={{
-              top: '-90px',
-              left: '0',
-              right: '0',
-              margin: '0 auto',
-              width: '80%',
-              maxWidth: '340px',
-              filter: 'drop-shadow(0 0 40px rgba(251,146,60,0.65))',
+              top: '-120px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '360px',
+              filter: 'drop-shadow(0 0 25px rgba(168,85,247,0.4)) drop-shadow(0 0 50px rgba(251,146,60,0.5))',
             }}
           />
 
@@ -108,7 +106,7 @@ export const AuthLayout = () => {
           </div>
         </div>
 
-        {/* RIGHT CARD */}
+        {/* ===== RIGHT CARD ===== */}
         <div className="flex flex-col justify-center space-y-5 rounded-2xl border border-[#1e293b] bg-[#121826] p-8">
           {/* Tab switcher */}
           <nav className="grid grid-cols-2 rounded-xl border border-white/10 bg-white/5 p-1" role="tablist">
@@ -131,7 +129,7 @@ export const AuthLayout = () => {
             ))}
           </nav>
 
-          {/* Form */}
+          {/* Form outlet */}
           <div className="auth-form-enter">
             <Outlet />
           </div>
