@@ -118,8 +118,13 @@ export const AuthLayout = () => {
           <img
             src="/champion-trophy.png"
             alt="Champion Trophy"
-            className="auth-trophy-float w-[140%] -mx-[20%] mt-[-5%]"
-            style={{ filter: 'drop-shadow(0 0 50px rgba(251,146,60,0.6))' }}
+            className="auth-trophy-float"
+            style={{
+              width: '140%',
+              marginLeft: '-20%',
+              marginTop: '-5%',
+              filter: 'drop-shadow(0 0 50px rgba(251,146,60,0.6))',
+            }}
           />
           <div className="w-full px-8 pb-8 -mt-4">
             <h1 className="text-center text-2xl font-bold text-white">Champion League System</h1>
