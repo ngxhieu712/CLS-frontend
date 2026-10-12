@@ -1,12 +1,11 @@
-import { ShieldCheck } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { cn } from '@/shared/lib/utils';
 import { ThemeToggle } from '@/shared/components/ui/theme-toggle';
 
 const navItems = [
-  { to: '/login', label: 'Login' },
-  { to: '/register', label: 'Register' },
-  { to: '/forgot-password', label: 'Forgot Password' }
+  { to: '/login', label: 'Đăng nhập' },
+  { to: '/register', label: 'Đăng ký' },
 ];
 
 export const AuthLayout = () => {
@@ -21,12 +20,26 @@ export const AuthLayout = () => {
         <div className="hidden rounded-2xl border bg-card p-8 md:flex md:flex-col md:justify-between">
           <div>
             <div className="mb-5 inline-flex size-11 items-center justify-center rounded-xl bg-primary/20 text-primary">
-              <ShieldCheck className="size-6" />
+              <Trophy className="size-6" />
             </div>
-            <h1 className="text-3xl font-bold">MERN Auth Starter</h1>
+            <h1 className="text-3xl font-bold">Champion League System</h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              Secure authentication base with OTP verification and clean architecture.
+              Hệ thống quản lý giải đấu esports — vòng bảng, bracket, kết quả trận đấu theo thời gian thực.
             </p>
+            <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-primary" />
+                Quản lý vòng bảng và playoff
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-primary" />
+                Trọng tài nhập kết quả, admin xác nhận
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-primary" />
+                5 vai trò: Admin, Trọng tài, Quản lý đội, Biên tập viên, Khán giả
+              </li>
+            </ul>
           </div>
           <p className="text-xs text-muted-foreground">TypeScript • React • shadcn/ui • TailwindCSS</p>
         </div>
