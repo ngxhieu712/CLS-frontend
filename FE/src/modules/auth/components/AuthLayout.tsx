@@ -115,13 +115,13 @@ export const AuthLayout = () => {
         <div className="relative flex flex-col rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden min-h-[500px]">
           <FireParticles />
           {/* Trophy chiếm 60% panel từ trên xuống, căn giữa */}
-          <div className="flex-1 flex items-center justify-center p-0">
+          <div className="flex items-center justify-center w-full px-4 pt-4 pb-2">
             <img
               src="/champion-trophy.png"
               alt="Champion Trophy"
-              className="auth-trophy-float h-full w-full object-contain"
+              className="auth-trophy-float"
               style={{
-                maxHeight: '360px',
+                width: '100%',
                 filter: 'drop-shadow(0 0 50px rgba(251,146,60,0.7))',
               }}
             />
