@@ -112,9 +112,10 @@ export const AuthLayout = () => {
 
       <section className="relative z-10 grid w-full max-w-5xl gap-6 md:grid-cols-2">
         {/* Left panel — trophy */}
-        <div className="relative flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+        <div className="relative flex flex-col items-center justify-end rounded-2xl border border-white/10 bg-white/5 pb-8 backdrop-blur-sm overflow-visible min-h-[480px]">
           <FireParticles />
-          <div className="auth-trophy-glow relative -mx-8 -mt-8 mb-4 w-[calc(100%+4rem)]">
+          {/* Trophy tràn lên trên và 2 bên */}
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-[120%]">
             <img
               src="/champion-trophy.png"
               alt="Champion Trophy"
@@ -122,6 +123,8 @@ export const AuthLayout = () => {
               style={{ filter: 'drop-shadow(0 0 40px rgba(251,146,60,0.5))' }}
             />
           </div>
+          {/* Spacer để đẩy text xuống dưới cúp */}
+          <div className="h-64" />
           <h1 className="text-center text-2xl font-bold text-white">Champion League System</h1>
           <p className="mt-2 text-center text-sm text-white/60">
             Hệ thống quản lý giải đấu esports — vòng bảng, bracket, kết quả trận đấu theo thời gian thực.
