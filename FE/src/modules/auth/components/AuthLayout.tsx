@@ -77,10 +77,12 @@ export const AuthLayout = () => {
           <img
             src="/champion-trophy.png"
             alt="Champion Trophy"
-            className="auth-trophy-float absolute left-1/2 z-20"
+            className="auth-trophy-float absolute z-20"
             style={{
               top: '-90px',
-              transform: 'translateX(-50%)',
+              left: '0',
+              right: '0',
+              margin: '0 auto',
               width: '80%',
               maxWidth: '340px',
               filter: 'drop-shadow(0 0 40px rgba(251,146,60,0.65))',
