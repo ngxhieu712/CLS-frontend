@@ -99,3 +99,85 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-family: Inter, Arial, sans-serif;
 }
+
+/* ===== AUTH PAGE ANIMATIONS ===== */
+
+/* Input styling cho dark auth layout */
+.auth-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+.auth-input:focus {
+  border-color: rgba(124, 58, 237, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15) !important;
+}
+
+/* Trophy float animation */
+@keyframes trophyFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+.auth-trophy-float {
+  animation: trophyFloat 4s ease-in-out infinite;
+}
+
+/* Trophy glow pulse */
+@keyframes trophyGlow {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(251, 146, 60, 0.3)); }
+  50% { filter: drop-shadow(0 0 45px rgba(251, 146, 60, 0.6)); }
+}
+.auth-trophy-glow img {
+  animation: trophyFloat 4s ease-in-out infinite, trophyGlow 2.5s ease-in-out infinite;
+}
+
+/* Fire particle animation */
+@keyframes fireRise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+  20% { opacity: 1; }
+  80% { opacity: 0.6; }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.3) translateX(var(--drift, 8px));
+  }
+}
+.auth-fire-particle {
+  background: radial-gradient(circle, #fbbf24 0%, #f97316 50%, transparent 100%);
+  animation: fireRise linear infinite;
+  --drift: 6px;
+}
+.auth-fire-particle:nth-child(odd) {
+  --drift: -8px;
+  background: radial-gradient(circle, #fff7ed 0%, #fb923c 40%, transparent 100%);
+}
+
+/* Form enter animation */
+@keyframes formEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.auth-form-enter {
+  animation: formEnter 0.35s ease-out both;
+}
+
+/* Social button hover */
+.auth-social-btn {
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.auth-social-btn:hover {
+  border-color: rgba(124, 58, 237, 0.4);
+}
