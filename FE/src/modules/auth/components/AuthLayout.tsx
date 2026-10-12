@@ -55,79 +55,131 @@ export const AuthLayout = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="relative flex min-h-screen w-full items-center justify-center bg-[#090d16] px-4 py-32 md:px-8">
+    <main
+      className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8"
+      style={{ backgroundColor: '#090d16' }}
+    >
       {/* Polygon bg */}
       <div className="absolute inset-0 overflow-hidden">
         <PolygonBg />
       </div>
 
       {/* Theme toggle */}
-      <div className="absolute right-4 top-4 z-20">
+      <div className="absolute right-6 top-6 z-20">
         <ThemeToggle />
       </div>
 
-      <section className="relative z-10 grid w-full max-w-5xl gap-6 md:grid-cols-2">
+      {/* Main grid — pt-32 để nhường chỗ cho cúp tràn lên */}
+      <div className="relative z-10 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-32">
 
         {/* ===== LEFT CARD ===== */}
+        {/* overflow:visible là BẮT BUỘC để cúp tràn lên trên */}
         <div
-          className="relative rounded-2xl border border-[#1e293b] bg-[#121826] px-8 pb-8 pt-40"
-          style={{ position: 'relative', overflow: 'visible' }}
+          className="relative rounded-2xl p-8 shadow-2xl flex flex-col justify-between min-h-[520px]"
+          style={{
+            background: '#121826',
+            border: '1px solid #1e293b',
+            overflow: 'visible',
+            position: 'relative',
+          }}
         >
-          {/* Trophy: absolute, top âm, căn giữa, to */}
-          <img
-            src="/champion-trophy.png"
-            alt="Champion Trophy"
-            className="auth-trophy-float absolute z-30"
+          {/* TROPHY — absolute, top âm, căn giữa */}
+          <div
+            className="absolute z-30 pointer-events-none flex justify-center"
             style={{
-              top: '-120px',
+              top: '-128px',
               left: '50%',
               transform: 'translateX(-50%)',
-              width: '360px',
-              filter: 'drop-shadow(0 0 25px rgba(168,85,247,0.4)) drop-shadow(0 0 50px rgba(251,146,60,0.5))',
+              width: '100%',
             }}
-          />
+          >
+            <img
+              src="/champion-trophy.png"
+              alt="Dragon Trophy"
+              className="auth-trophy-float object-contain"
+              style={{
+                width: '340px',
+                filter: 'drop-shadow(0 15px 25px rgba(139,92,246,0.35))',
+              }}
+            />
+          </div>
 
-          {/* Content */}
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Champion League System</h1>
-            <p className="mt-2 text-sm text-white/60">
+          {/* Content — pt-36 để không bị cúp đè */}
+          <div className="text-center pt-36">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
+              Champion League System
+            </h1>
+            <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
               Hệ thống quản lý giải đấu esports — vòng bảng, bracket, kết quả trận đấu theo thời gian thực.
             </p>
-            <ul className="mt-5 space-y-2 text-left text-sm text-white/55">
-              <li className="flex items-center gap-2">
-                <span className="size-1.5 shrink-0 rounded-full bg-violet-500" />
-                Quản lý vòng bảng và playoff
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="size-1.5 shrink-0 rounded-full bg-violet-500" />
-                5 vai trò: Admin, Trọng tài, Quản lý đội, Biên tập viên, Khán giả
-              </li>
-            </ul>
+          </div>
+
+          {/* Features */}
+          <div className="space-y-3 my-6">
+            <div
+              className="flex items-center gap-3 text-sm text-slate-300 p-3 rounded-xl"
+              style={{ background: 'rgba(9,13,22,0.5)', border: '1px solid rgba(30,41,59,0.6)' }}
+            >
+              <svg className="h-4 w-4 shrink-0 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span>Quản lý vòng bảng và playoff mượt mà</span>
+            </div>
+            <div
+              className="flex items-center gap-3 text-sm text-slate-300 p-3 rounded-xl"
+              style={{ background: 'rgba(9,13,22,0.5)', border: '1px solid rgba(30,41,59,0.6)' }}
+            >
+              <svg className="h-4 w-4 shrink-0 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>5 vai trò: Admin, Trọng tài, Quản lý đội, Biên tập viên, Khán giả</span>
+            </div>
+          </div>
+
+          {/* Tech stack */}
+          <div
+            className="pt-4 flex flex-wrap items-center justify-center gap-3 text-xs font-medium"
+            style={{ borderTop: '1px solid #1e293b' }}
+          >
+            {[
+              { label: 'TypeScript', color: 'text-sky-400' },
+              { label: 'React', color: 'text-cyan-400' },
+              { label: 'shadcn/ui', color: 'text-purple-400' },
+              { label: 'TailwindCSS', color: 'text-teal-400' },
+            ].map((t) => (
+              <span
+                key={t.label}
+                className={`px-2.5 py-1 rounded-md ${t.color}`}
+                style={{ background: 'rgba(30,41,59,0.5)' }}
+              >
+                {t.label}
+              </span>
+            ))}
           </div>
         </div>
 
         {/* ===== RIGHT CARD ===== */}
-        <div className="flex flex-col justify-center space-y-5 rounded-2xl border border-[#1e293b] bg-[#121826] p-8">
+        <div
+          className="rounded-2xl p-8 shadow-2xl"
+          style={{ background: '#121826', border: '1px solid #1e293b' }}
+        >
           {/* Tab switcher */}
-          <nav className="grid grid-cols-2 rounded-xl border border-white/10 bg-white/5 p-1" role="tablist">
+          <div
+            className="grid grid-cols-2 p-1.5 rounded-xl mb-8"
+            style={{ background: '#090d16', border: '1px solid #1e293b' }}
+          >
             {TABS.map((tab) => (
               <button
                 key={tab.to}
                 type="button"
-                role="tab"
-                aria-selected={location.pathname === tab.to}
                 onClick={() => navigate(tab.to)}
                 className={cn(
-                  'rounded-lg py-2 text-sm font-semibold transition-all duration-200 cursor-pointer',
+                  'py-2.5 text-sm font-semibold rounded-lg transition-all cursor-pointer',
                   location.pathname === tab.to
-                    ? 'bg-violet-600 text-white shadow'
-                    : 'text-white/50 hover:text-white/80'
+                    ? 'bg-violet-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white'
                 )}
               >
                 {tab.label}
               </button>
             ))}
-          </nav>
+          </div>
 
           {/* Form outlet */}
           <div className="auth-form-enter">
@@ -135,7 +187,7 @@ export const AuthLayout = () => {
           </div>
         </div>
 
-      </section>
+      </div>
     </main>
   );
 };
