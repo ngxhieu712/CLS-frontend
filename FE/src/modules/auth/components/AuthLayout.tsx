@@ -119,7 +119,7 @@ export const AuthLayout = () => {
               src="/champion-trophy.png"
               alt="Champion Trophy"
               className="auth-trophy-float w-full"
-              style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 40px rgba(251,146,60,0.5))' }}
+              style={{ filter: 'drop-shadow(0 0 40px rgba(251,146,60,0.5))' }}
             />
           </div>
           <h1 className="text-center text-2xl font-bold text-white">Champion League System</h1>
