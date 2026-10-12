@@ -112,22 +112,22 @@ export const AuthLayout = () => {
 
       <section className="relative z-10 grid w-full max-w-5xl gap-6 md:grid-cols-2">
         {/* Left panel — trophy */}
-        <div className="relative flex flex-col items-center justify-end rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+        <div className="relative flex flex-col rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden min-h-[500px]">
           <FireParticles />
-          {/* Trophy to, tràn 2 bên */}
-          <img
-            src="/champion-trophy.png"
-            alt="Champion Trophy"
-            className="auth-trophy-float"
-            style={{
-              width: '140%',
-              marginLeft: '-20%',
-              marginTop: '-5%',
-              filter: 'drop-shadow(0 0 50px rgba(251,146,60,0.6))',
-            }}
-          />
-          <div className="w-full px-8 pb-8 -mt-4">
-            <h1 className="text-center text-2xl font-bold text-white">Champion League System</h1>
+          {/* Trophy chiếm 60% panel từ trên xuống, căn giữa */}
+          <div className="flex-1 flex items-center justify-center p-0">
+            <img
+              src="/champion-trophy.png"
+              alt="Champion Trophy"
+              className="auth-trophy-float h-full w-full object-contain"
+              style={{
+                maxHeight: '360px',
+                filter: 'drop-shadow(0 0 50px rgba(251,146,60,0.7))',
+              }}
+            />
+          </div>
+          <div className="px-8 pb-8 text-center">
+            <h1 className="text-2xl font-bold text-white">Champion League System</h1>
           <p className="mt-2 text-center text-sm text-white/60">
             Hệ thống quản lý giải đấu esports — vòng bảng, bracket, kết quả trận đấu theo thời gian thực.
           </p>
