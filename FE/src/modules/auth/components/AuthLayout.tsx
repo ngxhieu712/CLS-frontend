@@ -114,11 +114,12 @@ export const AuthLayout = () => {
         {/* Left panel — trophy */}
         <div className="relative flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
           <FireParticles />
-          <div className="auth-trophy-glow relative mb-6 w-full max-w-[280px]">
+          <div className="auth-trophy-glow relative mb-6 w-full max-w-[380px]">
             <img
               src="/champion-trophy.png"
               alt="Champion Trophy"
-              className="auth-trophy-float w-full drop-shadow-[0_0_40px_rgba(251,146,60,0.4)]"
+              className="auth-trophy-float w-full"
+              style={{ mixBlendMode: 'lighten', filter: 'drop-shadow(0 0 40px rgba(251,146,60,0.5))' }}
             />
           </div>
           <h1 className="text-center text-2xl font-bold text-white">Champion League System</h1>
