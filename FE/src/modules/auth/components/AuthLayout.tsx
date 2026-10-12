@@ -114,7 +114,7 @@ export const AuthLayout = () => {
         {/* Left panel — trophy */}
         <div className="relative flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
           <FireParticles />
-          <div className="auth-trophy-glow relative mb-6 w-full max-w-[380px]">
+          <div className="auth-trophy-glow relative -mx-8 -mt-8 mb-4 w-[calc(100%+4rem)]">
             <img
               src="/champion-trophy.png"
               alt="Champion Trophy"
