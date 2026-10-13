@@ -90,14 +90,14 @@ export const RegisterPage = () => {
           <Mail />
           <input id="email" type="email" placeholder="ten@example.com" autoComplete="email" {...register('email')} />
         </div>
-        {errors.email && <p style={{ color: '#f87171', fontSize: 10, margin: 0 }}>{errors.email.message}</p>}
+        {errors.email && <p className="text-red-400 text-[10px] m-0">{errors.email.message}</p>}
 
         <label htmlFor="phone">Số điện thoại</label>
         <div className="input-wrap">
           <Phone />
           <input id="phone" type="tel" placeholder="0912 345 678" {...register('phone')} />
         </div>
-        {errors.phone && <p style={{ color: '#f87171', fontSize: 10, margin: 0 }}>{errors.phone.message}</p>}
+        {errors.phone && <p className="text-red-400 text-[10px] m-0">{errors.phone.message}</p>}
 
         <label htmlFor="password">Mật khẩu</label>
         <div className="input-wrap">
@@ -107,14 +107,14 @@ export const RegisterPage = () => {
             {showPassword ? <EyeOff /> : <Eye />}
           </button>
         </div>
-        {errors.password && <p style={{ color: '#f87171', fontSize: 10, margin: 0 }}>{errors.password.message}</p>}
+        {errors.password && <p className="text-red-400 text-[10px] m-0">{errors.password.message}</p>}
 
         <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
         <div className="input-wrap">
           <KeyRound />
           <input id="confirmPassword" type="password" placeholder="Nhập lại mật khẩu" {...register('confirmPassword')} />
         </div>
-        {errors.confirmPassword && <p style={{ color: '#f87171', fontSize: 10, margin: 0 }}>{errors.confirmPassword.message}</p>}
+        {errors.confirmPassword && <p className="text-red-400 text-[10px] m-0">{errors.confirmPassword.message}</p>}
 
         <button className="submit-button" type="submit" disabled={loading}>
           {loading ? 'Đang đăng ký...' : 'Đăng ký và gửi OTP'} <LockKeyhole />

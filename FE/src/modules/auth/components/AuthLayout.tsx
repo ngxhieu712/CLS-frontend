@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Moon, Sparkles, Trophy, Users } from 'lucide-react';
+import { Sparkles, Trophy, Users } from 'lucide-react';
 
 const TABS = [
   { to: '/login', label: 'Đăng nhập' },
@@ -36,7 +36,7 @@ export const AuthLayout = () => {
             <p className="intro-copy">Hệ thống quản lý giải đấu esports — vòng bảng, bracket, kết quả trận đấu theo thời gian thực.</p>
             <ul className="feature-list">
               <li><Trophy /> Quản lý vòng bảng và playoff</li>
-              <li><Users /> 5 vai trò: Admin, Trọng tài, Quản lý đội, Biên tập viên, Khán giả</li>
+              <li><Users /> 4 vai trò: Admin, Trọng tài, Quản lý đội, Biên tập viên</li>
             </ul>
 
           </div>

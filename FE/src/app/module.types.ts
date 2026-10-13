@@ -17,8 +17,16 @@ export interface NavItem {
   roles?: UserRole[];
 }
 
+/** A route in the public (unauthenticated) area. */
+export interface PublicRoute {
+  path: string;
+  Component: ComponentType;
+}
+
 /** What a feature module contributes to the app. Register it in `src/app/modules.ts`. */
 export interface AppModule {
+  /** Pages in the public layout (no login required). */
+  publicRoutes?: PublicRoute[];
   /** Pages inside the main app layout (top navigation). */
   routes: ModuleRoute[];
   navItems?: NavItem[];

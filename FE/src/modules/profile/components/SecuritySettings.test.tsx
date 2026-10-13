@@ -20,8 +20,11 @@ vi.mock('sonner', () => ({
 const user = {
   _id: 'user-1',
   email: 'alice@example.com',
-  role: 'user',
+  role: 'editor',
   loginOtpEnabled: false,
+  isEmailVerified: true,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 } as CurrentUser;
 
 beforeEach(() => {

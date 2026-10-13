@@ -102,7 +102,7 @@ export const LoginPage = () => {
           <Mail />
           <input id="email" type="email" placeholder="ten.nam.vu@example.com" autoComplete="email" {...register('email')} />
         </div>
-        {errors.email && <p style={{ color: '#f87171', fontSize: 10, margin: 0 }}>{errors.email.message}</p>}
+        {errors.email && <p className="text-red-400 text-[10px] m-0">{errors.email.message}</p>}
 
         <label htmlFor="password">Mật khẩu</label>
         <div className="input-wrap">
@@ -112,7 +112,7 @@ export const LoginPage = () => {
             {showPassword ? <EyeOff /> : <Eye />}
           </button>
         </div>
-        {errors.password && <p style={{ color: '#f87171', fontSize: 10, margin: 0 }}>{errors.password.message}</p>}
+        {errors.password && <p className="text-red-400 text-[10px] m-0">{errors.password.message}</p>}
 
         <button className="forgot-link" type="button" onClick={() => navigate('/forgot-password')}>Quên mật khẩu?</button>
 
