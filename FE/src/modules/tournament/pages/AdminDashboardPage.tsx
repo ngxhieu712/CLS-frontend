@@ -1,12 +1,13 @@
-import { CheckCircle, AlertTriangle, Trophy, Users, Calendar, Swords } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Trophy, Users, Calendar, Swords, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { MOCK_MATCHES, MOCK_TOURNAMENT, MOCK_TEAMS } from '@/shared/lib/mock-data';
+import { MOCK_MATCHES, MOCK_TOURNAMENT, MOCK_TEAMS, MOCK_APPLICATIONS } from '@/shared/lib/mock-data';
 import { StatCard } from '@/shared/components/stat-card';
 import { MatchStatusBadge } from '@/shared/components/status-badge';
 
 const pendingConfirm = MOCK_MATCHES.filter(m => m.status === 'pending_confirm');
 const liveMatches    = MOCK_MATCHES.filter(m => m.status === 'ongoing');
 const doneCount      = MOCK_MATCHES.filter(m => m.status === 'confirmed').length;
+const pendingTeams   = MOCK_APPLICATIONS.filter(a => a.status === 'pending');
 
 export const AdminDashboardPage = () => (
   <div className="space-y-8">
@@ -26,6 +27,45 @@ export const AdminDashboardPage = () => (
       <StatCard label="Tổng số trận" value={MOCK_MATCHES.length} icon={Swords} hint={`${doneCount} đã hoàn thành`} />
       <StatCard label="Đang diễn ra" value={liveMatches.length} icon={Trophy} />
       <StatCard label="Chờ xác nhận" value={pendingConfirm.length} icon={AlertTriangle} hint="cần xử lý" />
+    </div>
+
+    {/* Hồ sơ đội chờ duyệt */}
+    <div className="rounded-xl border border-blue-500/20 bg-card overflow-hidden">
+      <div className="flex items-center justify-between border-b border-blue-500/20 bg-blue-500/5 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <ClipboardList className="size-4 text-blue-400" />
+          <p className="text-sm font-bold text-blue-400">Hồ sơ đội chờ duyệt ({pendingTeams.length})</p>
+        </div>
+        <Link to="/admin/approval" className="text-xs text-zinc-500 hover:text-amber-400 transition-colors">Xem tất cả →</Link>
+      </div>
+      <div className="divide-y divide-white/5">
+        {pendingTeams.slice(0, 3).map(app => (
+          <div key={app._id} className="flex items-center justify-between gap-4 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-white">
+                {app.teamName} <span className="text-xs text-amber-400">[{app.teamTag}]</span>
+              </p>
+              <p className="text-xs text-zinc-500">Quản lý: {app.managerName} · {app.managerEmail}</p>
+            </div>
+            <Link to="/admin/approval" className="shrink-0 rounded-lg bg-blue-500/15 border border-blue-500/30 px-3 py-1.5 text-xs font-semibold text-blue-400 hover:bg-blue-500/25 transition-colors">
+              Xem & duyệt
+            </Link>
+          </div>
+        ))}
+        {pendingTeams.length === 0 && (
+          <div className="flex items-center gap-2 px-4 py-6 text-sm text-zinc-600">
+            <CheckCircle className="size-4 text-emerald-500" />
+            Không có hồ sơ nào chờ duyệt
+          </div>
+        )}
+        {pendingTeams.length > 3 && (
+          <div className="px-4 py-2 text-center">
+            <Link to="/admin/approval" className="text-xs text-amber-400 hover:underline">
+              Xem thêm {pendingTeams.length - 3} hồ sơ →
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
 
     {/* Pending confirm — hàng đợi quan trọng nhất */}
@@ -92,10 +132,11 @@ export const AdminDashboardPage = () => (
     {/* Quick links */}
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {[
-        { to: '/admin/teams',    label: 'Quản lý đội & tài khoản', icon: Users,    desc: `${MOCK_TEAMS.length} đội tham dự` },
-        { to: '/admin/draw',     label: 'Chia bảng & Bốc thăm',    icon: Trophy,   desc: '4 bảng × 4 đội' },
-        { to: '/admin/schedule', label: 'Lịch đấu & Phân công',     icon: Calendar, desc: `${MOCK_MATCHES.length} trận` },
-        { to: '/admin/playoff',  label: 'Thiết lập Playoff',        icon: Swords,   desc: 'Nhánh đơn' },
+        { to: '/admin/teams',    label: 'Quản lý đội & tài khoản', icon: Users,          desc: `${MOCK_TEAMS.length} đội tham dự` },
+        { to: '/admin/approval', label: 'Duyệt hồ sơ đội',         icon: ClipboardList,  desc: `${pendingTeams.length} chờ duyệt` },
+        { to: '/admin/draw',     label: 'Chia bảng & Bốc thăm',    icon: Trophy,         desc: '4 bảng × 4 đội' },
+        { to: '/admin/schedule', label: 'Lịch đấu & Phân công',     icon: Calendar,       desc: `${MOCK_MATCHES.length} trận` },
+        { to: '/admin/playoff',  label: 'Thiết lập Playoff',        icon: Swords,         desc: 'Nhánh đơn' },
       ].map(item => (
         <Link
           key={item.to}

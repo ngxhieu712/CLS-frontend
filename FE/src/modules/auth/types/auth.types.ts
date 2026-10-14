@@ -3,7 +3,39 @@ export interface AuthPayload {
   password: string;
 }
 
-export type UserRole = 'admin' | 'referee' | 'team_manager' | 'editor';
+export type AccountStatus = 'pending' | 'active' | 'locked' | 'rejected';
+
+export interface TeamRegistrationPayload {
+  displayName: string;
+  email: string;
+  password: string;
+  teamName: string;
+  teamTag: string;
+  teamEmail: string;
+  teamPhone: string;
+  teamLogo?: string;
+  teamDescription?: string;
+  teamOrganization?: string;
+}
+
+export interface CurrentUser {
+  _id: string;
+  email: string;
+  isEmailVerified: boolean;
+  role: UserRole;
+  status: AccountStatus;
+  loginOtpEnabled: boolean;
+  displayName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  phone?: string;
+  teamId?: string;
+  rejectReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type UserRole = 'admin' | 'referee' | 'teamManager' | 'editor';
 
 export interface CurrentUser {
   _id: string;

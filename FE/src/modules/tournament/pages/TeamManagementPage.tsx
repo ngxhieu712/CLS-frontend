@@ -8,25 +8,25 @@ import type { UserRole } from '@/modules/auth/types/auth.types';
 type AccountRow = { id: string; email: string; role: UserRole; teamName?: string };
 
 const MOCK_ACCOUNTS: AccountRow[] = [
-  { id: 'a1', email: 'alpha@cls.vn',   role: 'team_manager', teamName: 'Team Alpha' },
-  { id: 'a2', email: 'dragon@cls.vn',  role: 'team_manager', teamName: 'Dragon Force' },
+  { id: 'a1', email: 'alpha@cls.vn',   role: 'teamManager', teamName: 'Team Alpha' },
+  { id: 'a2', email: 'dragon@cls.vn',  role: 'teamManager', teamName: 'Dragon Force' },
   { id: 'a3', email: 'ref1@cls.vn',    role: 'referee' },
   { id: 'a4', email: 'ref2@cls.vn',    role: 'referee' },
   { id: 'a5', email: 'media@cls.vn',   role: 'editor' },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {
-  admin:        'Admin',
-  referee:      'Trọng tài',
-  team_manager: 'Quản lý đội',
-  editor:       'Biên tập viên',
+  admin:       'Admin',
+  referee:     'Trọng tài',
+  teamManager: 'Quản lý đội',
+  editor:      'Biên tập viên',
 };
 
 const ROLE_COLORS: Record<UserRole, string> = {
-  admin:        'bg-amber-500/20 text-amber-400',
-  referee:      'bg-blue-500/15 text-blue-400',
-  team_manager: 'bg-emerald-500/15 text-emerald-400',
-  editor:       'bg-purple-500/15 text-purple-400',
+  admin:       'bg-amber-500/20 text-amber-400',
+  referee:     'bg-blue-500/15 text-blue-400',
+  teamManager: 'bg-emerald-500/15 text-emerald-400',
+  editor:      'bg-purple-500/15 text-purple-400',
 };
 
 export const TeamManagementPage = () => {

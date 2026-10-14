@@ -168,3 +168,47 @@ export const MOCK_BRACKET: BracketSlot[] = [
   { round: 2, position: 1, matchId: 'sf2', match: MOCK_MATCHES.find(m => m._id === 'sf2') },
   { round: 3, position: 0, matchId: 'final', match: MOCK_MATCHES.find(m => m._id === 'final') },
 ];
+
+// ─── Mock pending team applications ──────────────────────────────────────
+export interface TeamApplication {
+  _id: string;
+  teamName: string;
+  teamTag: string;
+  teamEmail: string;
+  teamPhone: string;
+  teamOrganization?: string;
+  managerName: string;
+  managerEmail: string;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectReason?: string;
+  submittedAt: string;
+}
+
+export const MOCK_APPLICATIONS: TeamApplication[] = [
+  {
+    _id: 'app1', teamName: 'Nova Esports', teamTag: 'NVE',
+    teamEmail: 'nova@esports.vn', teamPhone: '0901234567',
+    teamOrganization: 'Nova Gaming Club',
+    managerName: 'Trần Minh Khoa', managerEmail: 'khoa@gmail.com',
+    status: 'pending', submittedAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
+  },
+  {
+    _id: 'app2', teamName: 'Red Phoenix', teamTag: 'RPX',
+    teamEmail: 'redphoenix@gmail.com', teamPhone: '0912345678',
+    managerName: 'Lê Văn Hùng', managerEmail: 'hung.lv@gmail.com',
+    status: 'pending', submittedAt: new Date(Date.now() - 5 * 3600_000).toISOString(),
+  },
+  {
+    _id: 'app3', teamName: 'Blue Storm', teamTag: 'BLS',
+    teamEmail: 'bluestorm@gmail.com', teamPhone: '0923456789',
+    managerName: 'Nguyễn Thị Mai', managerEmail: 'mai.nt@gmail.com',
+    status: 'pending', submittedAt: new Date(Date.now() - 24 * 3600_000).toISOString(),
+  },
+  {
+    _id: 'app4', teamName: 'Titan Force', teamTag: 'TTF',
+    teamEmail: 'titanforce@gmail.com', teamPhone: '0934567890',
+    managerName: 'Phạm Đức Long', managerEmail: 'long.pd@gmail.com',
+    status: 'rejected', rejectReason: 'Tên đội trùng với đội đã đăng ký trước đó.',
+    submittedAt: new Date(Date.now() - 48 * 3600_000).toISOString(),
+  },
+];
