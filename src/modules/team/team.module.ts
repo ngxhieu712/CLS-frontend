@@ -7,15 +7,15 @@ import { TeamSchedulePage }  from './pages/TeamSchedulePage';
 
 export const teamModule: AppModule = {
   routes: [
-    { path: '/team/dashboard', Component: TeamDashboardPage, roles: ['team_manager'] },
-    { path: '/team/profile',   Component: TeamProfilePage,   roles: ['team_manager'] },
-    { path: '/team/roster',    Component: RosterPage,        roles: ['team_manager'] },
-    { path: '/team/schedule',  Component: TeamSchedulePage,  roles: ['team_manager'] },
+    { path: '/team/dashboard', Component: TeamDashboardPage, roles: ['teamManager'] },
+    { path: '/team/profile',   Component: TeamProfilePage,   roles: ['teamManager'] },
+    { path: '/team/roster',    Component: RosterPage,        roles: ['teamManager'] },
+    { path: '/team/schedule',  Component: TeamSchedulePage,  roles: ['teamManager'] },
   ],
   navItems: [
-    { to: '/team/dashboard', label: 'Dashboard đội', icon: LayoutDashboard, roles: ['team_manager'] },
-    { to: '/team/profile',   label: 'Hồ sơ đội',    icon: UserCircle,      roles: ['team_manager'] },
-    { to: '/team/roster',    label: 'Tuyển thủ',    icon: Users,           roles: ['team_manager'] },
-    { to: '/team/schedule',  label: 'Lịch đội',     icon: Calendar,        roles: ['team_manager'] },
+    { to: '/team/dashboard', label: 'Dashboard đội', icon: LayoutDashboard, roles: ['teamManager'] },
+    { to: '/team/profile',   label: 'Hồ sơ đội',    icon: UserCircle,      roles: ['teamManager'] },
+    { to: '/team/roster',    label: 'Tuyển thủ',    icon: Users,           roles: ['teamManager'] },
+    { to: '/team/schedule',  label: 'Lịch đội',     icon: Calendar,        roles: ['teamManager'] },
   ],
 };
