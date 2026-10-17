@@ -10,10 +10,7 @@ export const http = axios.create({
 
 http.interceptors.request.use((config) => {
   const token = tokenStore.get();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -23,11 +20,8 @@ http.interceptors.response.use(
     const status = error?.response?.status as number | undefined;
     if (status === 401) {
       tokenStore.clear();
-      if (window.location.pathname !== '/logout') {
-        window.location.href = '/logout';
-      }
+      if (window.location.pathname !== '/logout') window.location.href = '/logout';
     }
-
     return Promise.reject(error);
   }
 );

@@ -21,13 +21,13 @@ export interface TeamRegistrationPayload {
 export interface CurrentUser {
   _id: string;
   email: string;
-  isEmailVerified: boolean;
   role: UserRole;
+  isEmailVerified: boolean;
   status: AccountStatus;
   loginOtpEnabled: boolean;
   displayName?: string;
-  bio?: string;
   avatarUrl?: string;
+  bio?: string;
   phone?: string;
   teamId?: string;
   rejectReason?: string;
@@ -37,25 +37,9 @@ export interface CurrentUser {
 
 export type UserRole = 'admin' | 'referee' | 'teamManager' | 'editor';
 
-export interface CurrentUser {
-  _id: string;
-  email: string;
-  isEmailVerified: boolean;
-  role: UserRole;
-  loginOtpEnabled: boolean;
-  displayName?: string;
-  bio?: string;
-  avatarUrl?: string;
-  phone?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface MessageResponse {
   message: string;
 }
 
 /** `/auth/login` answers with a token, or asks for the emailed OTP when the user enabled it. */
-export type LoginResponse =
-  | { token: string }
-  | { message: string; requiresOtp: true; email: string };
+export type LoginResponse = { token: string } | { message: string; requiresOtp: true; email: string };
