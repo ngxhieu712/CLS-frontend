@@ -1,197 +1,62 @@
+import { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 
 interface TeamAvatarProps {
   name: string;
   tag: string;
   logoUrl?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
 const SIZE = {
-  sm:  { wrap: 'size-8  text-[10px]' },
-  md:  { wrap: 'size-11 text-xs'    },
-  lg:  { wrap: 'size-16 text-sm'    },
-  xl:  { wrap: 'size-24 text-base'  },
+  xs: { px: 20, text: 7  },
+  sm: { px: 32, text: 10 },
+  md: { px: 44, text: 13 },
+  lg: { px: 64, text: 18 },
+  xl: { px: 96, text: 24 },
 };
 
-/** Returns a deterministic hue from team tag so every team gets a unique colour */
-function tagHue(tag: string) {
-  let h = 0;
-  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) % 360;
-  return h;
-}
-
+/**
+ * Circle logo — viền trắng mỏng, background tối #1a2035.
+ * Dùng ở mọi nơi: sidebar, standings, match rows, bracket, v.v.
+ */
 export const TeamAvatar = ({ name, tag, logoUrl, size = 'md', className }: TeamAvatarProps) => {
+  const [err, setErr] = useState(false);
   const s = SIZE[size];
-  const hue = tagHue(tag);
   return (
     <div
-      className={cn('relative flex shrink-0 items-center justify-center rounded-xl font-extrabold tracking-wider overflow-hidden', s.wrap, className)}
+      className={cn('shrink-0 overflow-hidden', className)}
       title={name}
       aria-label={name}
       style={{
-        background: `linear-gradient(135deg, hsl(${hue} 60% 8%), hsl(${(hue + 40) % 360} 50% 12%))`,
-        border: `1px solid hsl(${hue} 70% 25% / 0.6)`,
-        boxShadow: `0 0 12px hsl(${hue} 80% 40% / 0.15)`,
-        color: `hsl(${hue} 80% 70%)`,
+        width: s.px, height: s.px,
+        borderRadius: '50%',
+        background: '#1a2035',
+        border: '2px solid rgba(255,255,255,0.18)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
       }}
     >
-      {logoUrl ? (
-        <img src={logoUrl} alt={`Logo ${name}`} className="size-full rounded-xl object-contain p-1" />
+      {logoUrl && !err ? (
+        <img
+          src={logoUrl} alt={name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={() => setErr(true)}
+        />
       ) : (
-        <span>{tag.slice(0, 3)}</span>
+        <span style={{ fontSize: s.text, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0 }}>
+          {tag.slice(0, 3)}
+        </span>
       )}
     </div>
   );
 };
 
 /**
- * Large mascot card — used in TeamsPage grid.
- * Shows a big coloured mascot area + name + tag + region.
+ * TeamChip — logo circle nhỏ + tên + tag, dùng trong bảng standings.
  */
-export const TeamMascotCard = ({
-  name, tag, logoUrl, region = 'VIỆT NAM', groupName, wins, losses, points, advance,
-}: {
-  name: string; tag: string; logoUrl?: string; region?: string;
-  groupName?: string; wins?: number; losses?: number; points?: number; advance?: boolean;
-}) => {
-  const hue = tagHue(tag);
-  return (
-    <div
-      className="flex flex-col rounded-xl overflow-hidden transition-all duration-200 cursor-pointer group"
-      style={{
-        background: 'var(--es-bg-card)',
-        border: '1px solid rgba(255,255,255,0.07)',
-      }}
-      onMouseEnter={e => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.border = `1px solid hsl(${hue} 70% 45% / 0.5)`;
-        el.style.boxShadow = `0 0 24px hsl(${hue} 80% 40% / 0.15)`;
-        el.style.transform = 'translateY(-2px)';
-      }}
-      onMouseLeave={e => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.border = '1px solid rgba(255,255,255,0.07)';
-        el.style.boxShadow = 'none';
-        el.style.transform = 'none';
-      }}
-    >
-      {/* Mascot area */}
-      <div
-        className="relative flex items-center justify-center py-5"
-        style={{
-          background: `linear-gradient(160deg, hsl(${hue} 40% 7%), hsl(${(hue+40)%360} 35% 10%))`,
-          borderBottom: `1px solid hsl(${hue} 60% 20% / 0.4)`,
-          minHeight: 110,
-        }}
-      >
-        {/* Glow behind mascot */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse at 50% 60%, hsl(${hue} 80% 40% / 0.12), transparent 65%)`,
-          }}
-        />
-        {/* Mascot */}
-        <div
-          className="relative flex items-center justify-center rounded-full"
-          style={{
-            width: 72, height: 72,
-            background: `linear-gradient(135deg, hsl(${hue} 60% 10%), hsl(${(hue+40)%360} 50% 14%))`,
-            border: `2px solid hsl(${hue} 70% 30% / 0.6)`,
-            boxShadow: `0 0 20px hsl(${hue} 80% 40% / 0.25), inset 0 1px hsl(${hue} 80% 70% / 0.1)`,
-            fontSize: 32,
-          }}
-        >
-          {logoUrl ? (
-            <img src={logoUrl} alt={name} className="size-full rounded-full object-contain p-1.5" />
-          ) : (
-            <span
-              className="font-extrabold tracking-wider text-xl"
-              style={{ color: `hsl(${hue} 80% 70%)` }}
-            >
-              {tag.slice(0, 3)}
-            </span>
-          )}
-        </div>
-        {/* Tag badge top-right */}
-        <span
-          className="absolute top-2 right-2.5 text-[9px] font-bold tracking-widest px-1.5 py-0.5 rounded"
-          style={{
-            background: `hsl(${hue} 70% 12%)`,
-            border: `1px solid hsl(${hue} 60% 30% / 0.4)`,
-            color: `hsl(${hue} 70% 60%)`,
-          }}
-        >
-          {tag}
-        </span>
-      </div>
-
-      {/* Info area */}
-      <div className="flex flex-col gap-2 p-3">
-        <div>
-          <p className="font-bold text-white text-sm leading-tight truncate">{name}</p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-[9px] text-slate-500">🇻🇳 {region}</span>
-            {groupName && (
-              <>
-                <span className="text-slate-700">·</span>
-                <span className="text-[9px]" style={{ color: 'var(--es-cyan)' }}>{groupName}</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Roster member dots */}
-        <div className="flex items-center gap-1">
-          <span className="text-[9px] text-slate-600 mr-1">Roster Members</span>
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-full"
-              style={{
-                width: 16, height: 16,
-                background: i < 3
-                  ? `hsl(${hue} 50% 20%)`
-                  : 'rgba(255,255,255,0.05)',
-                border: `1px solid hsl(${hue} 60% 30% / 0.4)`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Stats row */}
-        {wins !== undefined && (
-          <div className="flex items-center gap-2 text-[10px]">
-            <span className="text-emerald-400 font-semibold">{wins}T</span>
-            <span className="text-red-400/70">{losses}B</span>
-            <span
-              className="font-bold ml-auto"
-              style={{ color: advance ? `hsl(${hue} 70% 60%)` : '#475569' }}
-            >
-              {points}đ {advance ? '✓' : ''}
-            </span>
-          </div>
-        )}
-
-        {/* CTA button */}
-        <button
-          className="w-full rounded-lg py-1.5 text-[11px] font-bold transition-all mt-1"
-          style={{
-            background: `hsl(${hue} 60% 10%)`,
-            border: `1px solid hsl(${hue} 60% 28% / 0.6)`,
-            color: `hsl(${hue} 75% 65%)`,
-          }}
-        >
-          Xem Chi Tiết
-        </button>
-      </div>
-    </div>
-  );
-};
-
-/** Compact inline chip — dùng trong bảng xếp hạng */
 export const TeamChip = ({ name, tag, logoUrl }: { name: string; tag: string; logoUrl?: string }) => (
   <div className="flex items-center gap-2">
     <TeamAvatar name={name} tag={tag} logoUrl={logoUrl} size="sm" />
@@ -201,3 +66,117 @@ export const TeamChip = ({ name, tag, logoUrl }: { name: string; tag: string; lo
     </div>
   </div>
 );
+
+/**
+ * TeamMascotCard — card lớn dùng ở TeamsPage grid.
+ * Layout: logo circle to giữa, tên, [TAG], region, roster chữ cái, CTA button.
+ */
+export const TeamMascotCard = ({
+  name, tag, logoUrl, region = 'VIỆT NAM', groupName,
+  wins, losses, points, advance,
+}: {
+  name: string; tag: string; logoUrl?: string; region?: string;
+  groupName?: string; wins?: number; losses?: number; points?: number; advance?: boolean;
+}) => {
+  const [err, setErr] = useState(false);
+  // Roster initials từ tên đội (lấy 5 ký tự đầu của các từ)
+  const rosterLetters = name.split(' ').map(w => w[0]?.toUpperCase() ?? '?').slice(0, 5);
+  while (rosterLetters.length < 5) rosterLetters.push('?');
+
+  return (
+    <div
+      className="flex flex-col items-center rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer"
+      style={{ background: '#0d1424', border: '1px solid rgba(255,255,255,0.08)', padding: '20px 16px 16px' }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.border = '1px solid rgba(138,43,226,0.5)';
+        el.style.boxShadow = '0 0 24px rgba(138,43,226,0.15)';
+        el.style.transform = 'translateY(-2px)';
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.border = '1px solid rgba(255,255,255,0.08)';
+        el.style.boxShadow = 'none';
+        el.style.transform = 'none';
+      }}
+    >
+      {/* Logo circle lớn */}
+      <div style={{
+        width: 96, height: 96, borderRadius: '50%',
+        background: '#1a2035',
+        border: '2px solid rgba(255,255,255,0.18)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden', marginBottom: 12,
+      }}>
+        {logoUrl && !err ? (
+          <img src={logoUrl} alt={name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={() => setErr(true)}
+          />
+        ) : (
+          <span style={{ fontSize: 22, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>{tag.slice(0, 3)}</span>
+        )}
+      </div>
+
+      {/* Name */}
+      <p className="text-center font-bold text-white text-base leading-tight">{name}</p>
+
+      {/* [TAG] */}
+      <p className="mt-1 text-center text-xs font-semibold" style={{ color: '#8b5cf6' }}>[{tag}]</p>
+
+      {/* Region */}
+      <div className="flex items-center gap-1 mt-1.5">
+        <span className="text-[10px]">📍</span>
+        <span className="text-[10px] text-slate-400 uppercase tracking-wider">{region}</span>
+        {groupName && (
+          <>
+            <span className="text-slate-700 mx-0.5">·</span>
+            <span className="text-[10px] text-amber-500/70">{groupName}</span>
+          </>
+        )}
+      </div>
+
+      {/* Roster members */}
+      <div className="mt-4 w-full">
+        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-600 text-center mb-2">Roster Members</p>
+        <div className="flex items-center justify-center gap-1.5">
+          {rosterLetters.map((letter, i) => (
+            <div key={i} style={{
+              width: 28, height: 28, borderRadius: '50%',
+              background: '#1e2a45',
+              border: '1px solid rgba(255,255,255,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
+            }}>
+              {letter}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Stats */}
+      {wins !== undefined && (
+        <div className="flex items-center gap-3 mt-3 text-[11px]">
+          <span className="text-emerald-400 font-semibold">{wins}T</span>
+          <span className="text-red-400/70">{losses}B</span>
+          <span className="font-bold ml-1" style={{ color: advance ? '#f59e0b' : '#475569' }}>
+            {points}đ{advance ? ' ✓' : ''}
+          </span>
+        </div>
+      )}
+
+      {/* CTA button */}
+      <button
+        className="mt-4 w-full rounded-xl py-2 text-sm font-bold transition-all flex items-center justify-center gap-2"
+        style={{
+          background: 'rgba(138,43,226,0.15)',
+          border: '1px solid rgba(138,43,226,0.4)',
+          color: '#a78bfa',
+        }}
+      >
+        Xem Chi Tiết <span>›</span>
+      </button>
+    </div>
+  );
+};

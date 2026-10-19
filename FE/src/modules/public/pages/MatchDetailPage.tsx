@@ -1,8 +1,24 @@
-import { useParams, Link } from 'react-router-dom';
+﻿import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { ArrowLeft, Calendar, Clock, Play, ExternalLink, Trophy, AlertCircle } from 'lucide-react';
 import { MOCK_MATCHES } from '@/shared/lib/mock-data';
 import { MatchStatusBadge } from '@/shared/components/status-badge';
-import { TeamAvatar } from '@/shared/components/team-avatar';
+
+// Logo lớn không viền — dùng cho VS panel
+function MatchTeamLogo({ name, tag, logoUrl }: { name: string; tag: string; logoUrl?: string }) {
+  const [err, setErr] = useState(false);
+  return (
+    <div
+      className="flex items-center justify-center rounded-2xl overflow-hidden"
+      style={{ width: 96, height: 96, borderRadius: '50%', background: '#1a2035', border: '2px solid rgba(255,255,255,0.18)', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+    >
+      {logoUrl && !err
+        ? <img src={logoUrl} alt={name} className="w-full h-full object-cover" onError={() => setErr(true)} />
+        : <span className="text-2xl font-extrabold text-slate-600">{tag.slice(0, 3)}</span>
+      }
+    </div>
+  );
+}
 
 export const MatchDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -52,7 +68,7 @@ export const MatchDetailPage = () => {
         <div className="flex items-center justify-between gap-4">
           {/* Team A */}
           <div className="flex flex-1 flex-col items-center gap-3 text-center">
-            <TeamAvatar name={match.teamA?.name ?? 'TBD'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="lg" />
+            <MatchTeamLogo name={match.teamA?.name ?? 'TBD'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} />
             <div>
               <p className={`text-lg font-extrabold ${match.winnerId === match.teamA?._id ? 'text-amber-400' : 'text-white'}`}>
                 {match.teamA?.name ?? 'TBD'}
@@ -90,7 +106,7 @@ export const MatchDetailPage = () => {
 
           {/* Team B */}
           <div className="flex flex-1 flex-col items-center gap-3 text-center">
-            <TeamAvatar name={match.teamB?.name ?? 'TBD'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="lg" />
+            <MatchTeamLogo name={match.teamB?.name ?? 'TBD'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} />
             <div>
               <p className={`text-lg font-extrabold ${match.winnerId === match.teamB?._id ? 'text-amber-400' : 'text-white'}`}>
                 {match.teamB?.name ?? 'TBD'}

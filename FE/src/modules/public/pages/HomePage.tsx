@@ -1,6 +1,7 @@
 import { Trophy, Calendar, Flame, ChevronRight, Clock, Zap, Shield } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MOCK_MATCHES, MOCK_TOURNAMENT, MOCK_GROUPS } from '@/shared/lib/mock-data';
+import { MOCK_MATCHES, MOCK_TOURNAMENT, MOCK_GROUPS, MOCK_TEAMS } from '@/shared/lib/mock-data';
 import { MatchCard } from '@/shared/components/match-card';
 import { PublicSidebar } from '@/shared/components/public-sidebar';
 
@@ -222,6 +223,9 @@ export const HomePage = () => (
         </section>
       )}
 
+      {/* ── Dữ liệu đội tuyển & chỉ số ──────────────────────────── */}
+      <TeamStatsSection />
+
     </div>
 
     {/* ── Sidebar ──────────────────────────────────────────────── */}
@@ -259,5 +263,118 @@ function SectionTitle({
         </Link>
       )}
     </div>
+  );
+}
+
+// ─── Mini sparkline SVG ───────────────────────────────────────────────────────
+function Sparkline({ data, color, fill }: { data: number[]; color: string; fill: string }) {
+  const w = 200, h = 48;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 8) - 4;
+    return `${x},${y}`;
+  });
+  const linePath = `M ${pts.join(' L ')}`;
+  const fillPath = `${linePath} L ${w},${h} L 0,${h} Z`;
+  return (
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`grad-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path d={fillPath} fill={`url(#grad-${color.replace('#','')})`} />
+      <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── Single stat row ─────────────────────────────────────────────────────────
+function StatRow({ label, value, color, data }: {
+  label: string; value: string | number; color: string; data: number[];
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-slate-500">{label}</span>
+        <span className="font-bold" style={{ color }}>{value}</span>
+      </div>
+      <Sparkline data={data} color={color} fill={color} />
+    </div>
+  );
+}
+
+// ─── Team stats card ─────────────────────────────────────────────────────────
+function TeamStatsCard({ teamId }: { teamId: string }) {
+  const team     = MOCK_TEAMS.find(t => t._id === teamId);
+  const group    = MOCK_GROUPS.find(g => g._id === team?.groupId);
+  const standing = group?.standings.find(s => s.teamId === teamId);
+  const [imgErr, setImgErr] = useState(false);
+
+  if (!team) return null;
+
+  const total   = (standing?.wins ?? 0) + (standing?.losses ?? 0);
+  const winRate = total > 0 ? Math.round(((standing?.wins ?? 0) / total) * 100) : 0;
+
+  // Mock sparkline data — 10 điểm ngẫu nhiên nhưng deterministic theo teamId
+  const seed  = teamId.charCodeAt(teamId.length - 1);
+  const mkData = (base: number, amp: number) =>
+    Array.from({ length: 10 }, (_, i) => Math.max(0, base + Math.sin(i * seed) * amp + i * (amp / 10)));
+
+  return (
+    <div
+      className="rounded-xl p-4 space-y-3"
+      style={{ background: '#0a1020', border: '1px solid rgba(255,255,255,0.07)' }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div style={{
+          width: 44, height: 44, borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+          background: '#1a2035', border: '2px solid rgba(255,255,255,0.18)',
+        }}>
+          {team.logoUrl && !imgErr
+            ? <img src={team.logoUrl} alt={team.name} className="w-full h-full object-cover" onError={() => setImgErr(true)} />
+            : <div className="w-full h-full flex items-center justify-center text-xs font-bold text-slate-500">{team.tag.slice(0,3)}</div>
+          }
+        </div>
+        <div>
+          <p className="font-bold text-white text-sm">{team.name}</p>
+          <p className="text-[10px] text-slate-500">
+            {standing?.wins ?? 0}W · {standing?.losses ?? 0}L · {standing?.points ?? 0} pts
+          </p>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <StatRow label="Win rate"   value={`${winRate}%`}     color="#22d3ee" data={mkData(winRate, 15)} />
+      <StatRow label="Kill count" value={seed % 20 + 15}    color="#a78bfa" data={mkData(20, 8)} />
+      <StatRow label="Objective"  value={seed % 30 + 55}    color="#f59e0b" data={mkData(60, 10)} />
+    </div>
+  );
+}
+
+// ─── Team Stats Section ───────────────────────────────────────────────────────
+function TeamStatsSection() {
+  // Top 4 đội đứng đầu BXH
+  const top4 = MOCK_GROUPS.flatMap(g => g.standings.slice(0, 1))
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 4)
+    .map(s => s.teamId);
+
+  return (
+    <section>
+      <SectionTitle
+        icon={<Zap className="size-4 text-amber-400" />}
+        title="Dữ liệu đội tuyển & chỉ số"
+        link={{ to: '/teams', label: 'Xem tất cả' }}
+      />
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {top4.map(id => <TeamStatsCard key={id} teamId={id} />)}
+      </div>
+    </section>
   );
 }

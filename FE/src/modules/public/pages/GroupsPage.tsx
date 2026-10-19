@@ -1,208 +1,194 @@
-import { ChevronUp, Trophy } from 'lucide-react';
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { MOCK_GROUPS, MOCK_MATCHES } from '@/shared/lib/mock-data';
-import { MatchCard } from '@/shared/components/match-card';
-import { TeamChip } from '@/shared/components/team-avatar';
 import { PublicSidebar } from '@/shared/components/public-sidebar';
 import type { Group } from '@/shared/types/esports.types';
 
-export const GroupsPage = () => {
-  const [activeGroup, setActiveGroup] = useState<string>(MOCK_GROUPS[0]._id);
-  const group = MOCK_GROUPS.find(g => g._id === activeGroup)!;
-
+// ─── Small logo ──────────────────────────────────────────────────────────────
+function SmallLogo({ name, tag, logoUrl }: { name: string; tag: string; logoUrl?: string }) {
+  const [err, setErr] = useState(false);
   return (
-    <div className="flex gap-5 items-start">
-      <div className="flex-1 min-w-0 space-y-5">
-
-        {/* Title */}
-        <div>
-          <h1
-            className="text-xl font-extrabold tracking-tight"
-            style={{
-              background: 'linear-gradient(90deg, #fff 40%, var(--es-purple) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Vòng bảng
-          </h1>
-          <p className="mt-1 text-xs text-slate-600">Bảng xếp hạng và kết quả thi đấu</p>
-        </div>
-
-        {/* Group tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
-          {MOCK_GROUPS.map(g => (
-            <button
-              key={g._id}
-              role="tab"
-              aria-selected={g._id === activeGroup}
-              onClick={() => setActiveGroup(g._id)}
-              className="whitespace-nowrap rounded-lg px-5 py-2 text-sm font-extrabold uppercase tracking-widest transition-all cursor-pointer"
-              style={
-                g._id === activeGroup
-                  ? {
-                      background: 'linear-gradient(135deg, rgba(155,92,246,0.2), rgba(34,211,238,0.1))',
-                      border: '1px solid rgba(155,92,246,0.5)',
-                      color: 'white',
-                      boxShadow: '0 0 16px rgba(155,92,246,0.2)',
-                    }
-                  : {
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      color: '#475569',
-                    }
-              }
-            >
-              {g.name.toUpperCase()}
-            </button>
-          ))}
-        </div>
-
-        {/* Content grid */}
-        <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
-          <StandingsTable group={group} />
-
-          <div className="space-y-3">
-            <p
-              className="text-[9px] font-extrabold uppercase tracking-widest"
-              style={{ color: 'var(--es-purple)' }}
-            >
-              Trận đấu — {group.name}
-            </p>
-            {MOCK_MATCHES.filter(m => m.groupId === group._id).map(m => (
-              <MatchCard key={m._id} match={m} compact />
-            ))}
-            {MOCK_MATCHES.filter(m => m.groupId === group._id).length === 0 && (
-              <p className="py-8 text-center text-xs text-slate-700">Chưa có trận đấu</p>
-            )}
-          </div>
-        </div>
-
-      </div>
-      <PublicSidebar />
+    <div className="flex items-center justify-center rounded-full overflow-hidden shrink-0"
+      style={{ width: 28, height: 28, background: '#1a2035', border: '2px solid rgba(255,255,255,0.18)', borderRadius: '50%', overflow: 'hidden' }}>
+      {logoUrl && !err
+        ? <img src={logoUrl} alt={name} className="w-full h-full object-cover" onError={() => setErr(true)} />
+        : <span className="text-[9px] font-bold text-slate-600">{tag.slice(0,3)}</span>
+      }
     </div>
   );
-};
+}
 
+// ─── Standings table ─────────────────────────────────────────────────────────
 function StandingsTable({ group }: { group: Group }) {
   return (
-    <div
-      className="overflow-hidden rounded-xl"
-      style={{
-        background: 'var(--es-bg-card)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-      }}
-    >
+    <div className="rounded-xl overflow-hidden" style={{ background: '#0d1424', border: '1px solid rgba(255,255,255,0.07)' }}>
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 py-3"
-        style={{
-          background: 'rgba(0,0,0,0.2)',
-          borderBottom: '1px solid rgba(155,92,246,0.15)',
-          borderLeft: '3px solid var(--es-purple)',
-        }}
-      >
-        <div className="flex items-center gap-2">
-          <Trophy className="size-3.5" style={{ color: 'var(--es-purple)' }} />
-          <p className="text-sm font-bold text-white">{group.name}</p>
-        </div>
-        <span
-          className="rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
-          style={{ background: 'rgba(155,92,246,0.12)', color: 'var(--es-purple)', border: '1px solid rgba(155,92,246,0.2)' }}
-        >
+      <div className="flex items-center justify-between px-4 py-2.5"
+        style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(245,158,11,0.12)', borderLeft: '3px solid #f59e0b' }}>
+        <p className="text-sm font-bold text-white">{group.name}</p>
+        <span className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">
           {group.standings.filter(r => r.advance).length} đội đi tiếp
         </span>
       </div>
 
-      <table className="w-full">
-        <thead>
-          <tr
-            className="text-[9px] font-extrabold uppercase tracking-widest"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#334155' }}
-          >
-            <th className="px-4 py-2.5 text-left w-8">#</th>
-            <th className="px-4 py-2.5 text-left">Đội</th>
-            <th className="px-4 py-2.5 text-left">Win rate</th>
-            <th className="px-4 py-2.5 text-center">T/B</th>
-            <th className="px-4 py-2.5 text-center">Điểm</th>
-          </tr>
-        </thead>
-        <tbody>
-          {group.standings.map(row => {
-            const total = row.wins + row.losses;
-            const wr    = total > 0 ? Math.round((row.wins / total) * 100) : 0;
-            return (
-              <tr
-                key={row.teamId}
-                className="transition-colors hover:bg-white/[0.02]"
-                style={{
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  background: row.advance ? 'rgba(155,92,246,0.025)' : 'transparent',
-                }}
-              >
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    {row.advance && <ChevronUp className="size-3" style={{ color: 'var(--es-purple)' }} />}
-                    <span
-                      className="text-xs font-bold tabular-nums"
-                      style={{ color: row.advance ? 'var(--es-purple)' : '#334155' }}
-                    >
-                      {row.rank}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <TeamChip name={row.teamName} tag={row.teamTag} logoUrl={row.logoUrl} />
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden min-w-[48px]"
-                      style={{ background: 'rgba(255,255,255,0.05)' }}>
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${wr}%`,
-                          background: row.advance
-                            ? 'linear-gradient(90deg, var(--es-purple), var(--es-cyan))'
-                            : 'rgba(100,116,139,0.4)',
-                          boxShadow: row.advance ? '0 0 6px rgba(155,92,246,0.4)' : 'none',
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] tabular-nums text-slate-500 w-8 shrink-0">{wr}%</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span className="text-emerald-400 font-semibold tabular-nums text-xs">{row.wins}</span>
-                  <span className="text-slate-700 mx-0.5">/</span>
-                  <span className="text-red-400/60 tabular-nums text-xs">{row.losses}</span>
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span
-                    className="inline-block rounded-full px-2.5 py-0.5 text-xs font-bold tabular-nums"
-                    style={
-                      row.advance
-                        ? { background: 'rgba(155,92,246,0.15)', color: 'var(--es-purple)', border: '1px solid rgba(155,92,246,0.3)', boxShadow: '0 0 8px rgba(155,92,246,0.2)' }
-                        : { color: '#334155' }
-                    }
-                  >
-                    {row.points}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {/* Column headers */}
+      <div className="grid gap-1 px-4 py-2"
+        style={{ gridTemplateColumns: '1.5rem 1fr 4rem 3rem 3rem 3rem 3.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#334155', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <span>#</span><span>ĐỘI</span>
+        <span className="text-center">Win rate</span>
+        <span className="text-center">Win</span>
+        <span className="text-center">Thua</span>
+        <span className="text-center">HS</span>
+        <span className="text-right">ĐIỂM</span>
+      </div>
 
-      <div
-        className="flex items-center gap-2 px-4 py-2.5 text-[9px] text-slate-700"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
-      >
-        <ChevronUp className="size-3" style={{ color: 'var(--es-purple)' }} />
+      {/* Rows */}
+      {group.standings.map(row => {
+        const total = row.wins + row.losses;
+        const wr    = total > 0 ? Math.round((row.wins / total) * 100) : 0;
+        return (
+          <div key={row.teamId}
+            className="grid gap-1 items-center px-4 py-2.5 transition-colors hover:bg-white/[0.02]"
+            style={{
+              gridTemplateColumns: '1.5rem 1fr 4rem 3rem 3rem 3rem 3.5rem',
+              borderBottom: '1px solid rgba(255,255,255,0.04)',
+              background: row.advance ? 'rgba(245,158,11,0.02)' : 'transparent',
+            }}
+          >
+            <span className="text-xs font-bold" style={{ color: row.advance ? '#f59e0b' : '#334155' }}>{row.rank}</span>
+
+            {/* Team with logo */}
+            <div className="flex items-center gap-2 min-w-0">
+              <SmallLogo name={row.teamName} tag={row.teamTag} logoUrl={row.logoUrl} />
+              <span className="truncate text-xs font-medium" style={{ color: row.advance ? '#e2e8f0' : '#64748b' }}>
+                {row.teamName}
+              </span>
+            </div>
+
+            {/* Win rate bar */}
+            <div className="flex items-center gap-1">
+              <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div className="h-full rounded-full" style={{
+                  width: `${wr}%`,
+                  background: row.advance ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'rgba(100,116,139,0.4)',
+                  boxShadow: row.advance ? '0 0 4px rgba(245,158,11,0.4)' : 'none',
+                }} />
+              </div>
+              <span className="text-[9px] tabular-nums" style={{ color: '#475569' }}>{wr}%</span>
+            </div>
+
+            <span className="text-center text-xs text-emerald-400 tabular-nums">{row.wins}</span>
+            <span className="text-center text-xs text-red-400/60 tabular-nums">{row.losses}</span>
+            <span className="text-center text-xs text-slate-500 tabular-nums">{row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff}</span>
+            <span className="text-right">
+              <span className="inline-block rounded-full px-2 py-0.5 text-xs font-bold tabular-nums"
+                style={row.advance
+                  ? { background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', boxShadow: '0 0 6px rgba(245,158,11,0.2)' }
+                  : { color: '#334155' }}>
+                {row.points}
+              </span>
+            </span>
+          </div>
+        );
+      })}
+
+      {/* Legend */}
+      <div className="flex items-center gap-2 px-4 py-2 text-[9px] text-slate-600"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <span className="size-2 rounded-full bg-amber-500 shrink-0" />
         Đi tiếp vào vòng playoff · T = Thắng · B = Thua
       </div>
     </div>
   );
 }
+
+// ─── Upcoming match row (compact) ────────────────────────────────────────────
+function UpcomingRow({ match }: { match: ReturnType<typeof MOCK_MATCHES.filter>[0] }) {
+  const [errA, setErrA] = useState(false);
+  const [errB, setErrB] = useState(false);
+  const timeStr = new Date(match.scheduledAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = new Date(match.scheduledAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+
+  return (
+    <div className="flex items-center gap-3 py-2 text-xs"
+      style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <span className="text-[10px] text-slate-600 w-20 shrink-0">{timeStr} · Bảng B</span>
+
+      <div className="flex items-center gap-1.5 flex-1 justify-end">
+        <span className="text-slate-300 truncate">{match.teamA?.name ?? 'TBD'}</span>
+        <div className="size-6 rounded overflow-hidden shrink-0" style={{ background: '#1a2035', border: '2px solid rgba(255,255,255,0.18)', borderRadius: '50%', overflow: 'hidden' }}>
+          {match.teamA?.logoUrl && !errA
+            ? <img src={match.teamA.logoUrl} alt="" className="w-full h-full object-cover" onError={() => setErrA(true)} />
+            : <span className="text-[7px] font-bold text-amber-400 flex items-center justify-center h-full">{match.teamA?.tag?.slice(0,2)}</span>
+          }
+        </div>
+      </div>
+
+      <span className="text-[10px] font-bold text-slate-600 shrink-0">vs</span>
+
+      <div className="flex items-center gap-1.5 flex-1 justify-start">
+        <div className="size-6 rounded overflow-hidden shrink-0" style={{ background: '#1a2035', border: '2px solid rgba(255,255,255,0.18)', borderRadius: '50%', overflow: 'hidden' }}>
+          {match.teamB?.logoUrl && !errB
+            ? <img src={match.teamB.logoUrl} alt="" className="w-full h-full object-cover" onError={() => setErrB(true)} />
+            : <span className="text-[7px] font-bold text-amber-400 flex items-center justify-center h-full">{match.teamB?.tag?.slice(0,2)}</span>
+          }
+        </div>
+        <span className="text-slate-300 truncate">{match.teamB?.name ?? 'TBD'}</span>
+      </div>
+
+      <span className="text-[10px] text-slate-600 w-20 text-right shrink-0">{dateStr} · Bảng A</span>
+    </div>
+  );
+}
+
+// ─── GroupsPage ──────────────────────────────────────────────────────────────
+export const GroupsPage = () => {
+  const [activeGroup, setActiveGroup] = useState(MOCK_GROUPS[0]._id);
+  const group = MOCK_GROUPS.find(g => g._id === activeGroup)!;
+  const groupMatches = MOCK_MATCHES.filter(m => m.phase === 'group').slice(0, 6);
+
+  return (
+    <div className="flex gap-5 items-start">
+      <div className="flex-1 min-w-0 space-y-4">
+        {/* Header + tabs */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-extrabold text-white tracking-tight">CHI TIẾT VÒNG BẢNG</h1>
+          <div className="flex gap-1 text-xs text-slate-500">
+            <span className="cursor-pointer hover:text-amber-400">Progress timeline</span>
+            <span className="mx-1">·</span>
+            <span className="cursor-pointer hover:text-amber-400">Progliss</span>
+          </div>
+        </div>
+
+        {/* Group tabs */}
+        <div className="flex gap-1 rounded-lg overflow-hidden p-1"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          {MOCK_GROUPS.map(g => (
+            <button key={g._id}
+              onClick={() => setActiveGroup(g._id)}
+              className="flex-1 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer"
+              style={g._id === activeGroup
+                ? { background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }
+                : { color: '#64748b' }
+              }
+            >{g.name}</button>
+          ))}
+        </div>
+
+        {/* Standings */}
+        <StandingsTable group={group} />
+
+        {/* Upcoming matches section */}
+        <div className="rounded-xl overflow-hidden" style={{ background: '#0d1424', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid rgba(34,211,238,0.7)' }}>
+            <p className="text-xs font-bold text-white">TRẬN ĐẤU SẮP TỚI &amp; LỊCH THI ĐẤU VÒNG BẢNG</p>
+          </div>
+          <div className="px-4 py-1">
+            {groupMatches.map(m => <UpcomingRow key={m._id} match={m} />)}
+          </div>
+        </div>
+      </div>
+
+      <PublicSidebar />
+    </div>
+  );
+};
