@@ -304,3 +304,69 @@ body {
 /* Text helpers */
 .text-es-muted  { color: #64748b; }
 .text-es-subtle { color: #94a3b8; }
+
+/* ===== ESPORTS NEON ACCENT TOKENS (Purple/Cyan palette từ mockup) ===== */
+:root {
+  /* Backgrounds */
+  --es-bg-deep:    #070a13;
+  --es-bg-card:    #0d1424;
+  --es-bg-card-hi: #13192e;
+  --es-bg-header:  rgba(7,10,19,0.92);
+
+  /* Gold/Amber neon accents — tông màu chính */
+  --es-gold:        #f59e0b;
+  --es-gold-bright: #fbbf24;
+  --es-gold-dim:    rgba(245,158,11,0.15);
+  --es-gold-glow:   rgba(245,158,11,0.35);
+
+  /* Cyan accent phụ */
+  --es-cyan:       #22d3ee;
+  --es-cyan-dim:   rgba(34,211,238,0.12);
+  --es-cyan-glow:  rgba(34,211,238,0.3);
+
+  /* Aliases cho code cũ dùng --es-purple → trỏ sang gold */
+  --es-purple:      var(--es-gold);
+  --es-purple-dim:  var(--es-gold-dim);
+  --es-purple-glow: var(--es-gold-glow);
+  --es-border-purple: rgba(245,158,11,0.4);
+  --es-border-cyan:   rgba(34,211,238,0.35);
+  --es-border-card:   rgba(255,255,255,0.07);
+
+  --es-text-primary:  #e8eaf0;
+  --es-text-muted:    #64748b;
+  --es-text-subtle:   #94a3b8;
+}
+
+.es-card {
+  background: var(--es-bg-card);
+  border: 1px solid var(--es-border-card);
+  border-radius: 0.75rem;
+  color: var(--es-text-primary);
+}
+.es-card:hover {
+  border-color: var(--es-border-purple);
+  box-shadow: 0 0 16px var(--es-gold-dim);
+}
+.es-badge-live {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4);
+  color: #f87171; border-radius: 9999px; padding: 2px 8px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+}
+.es-badge-live::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #ef4444; animation: pulse 1.5s ease-in-out infinite;
+}
+.es-section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--es-text-muted); margin-bottom: 0.75rem;
+}
+.es-tag-pill {
+  display: inline-flex; align-items: center; padding: 3px 10px;
+  border-radius: 9999px; font-size: 11px; font-weight: 600;
+  background: var(--es-gold-dim); border: 1px solid rgba(245,158,11,0.4);
+  color: var(--es-gold);
+}
+.es-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+.es-scroll::-webkit-scrollbar-track { background: transparent; }
+.es-scroll::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 2px; }

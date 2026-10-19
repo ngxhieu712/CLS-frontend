@@ -1,23 +1,25 @@
 // ─── Mock data — thay bằng API call khi BE sẵn sàng ──────────────────────
 import type { Group, Match, Team, Tournament, BracketSlot } from '@/shared/types/esports.types';
 
+// ─── Logo paths — đặt file ảnh vào FE/public/logos/ với tên tương ứng ────
+// lion.png, dragon.png, phoenix.png, wolf.png, shark.png, tiger.png, ...
 export const MOCK_TEAMS: Team[] = [
-  { _id: 't1', name: 'Team Alpha', tag: 'ALF', logoUrl: undefined, groupId: 'g1' },
-  { _id: 't2', name: 'Dragon Force', tag: 'DRG', logoUrl: undefined, groupId: 'g1' },
-  { _id: 't3', name: 'Storm Riders', tag: 'STR', logoUrl: undefined, groupId: 'g1' },
-  { _id: 't4', name: 'Iron Shield', tag: 'IRN', logoUrl: undefined, groupId: 'g1' },
-  { _id: 't5', name: 'Phoenix Rise', tag: 'PHX', logoUrl: undefined, groupId: 'g2' },
-  { _id: 't6', name: 'Dark Matter', tag: 'DKM', logoUrl: undefined, groupId: 'g2' },
-  { _id: 't7', name: 'Cyber Wolves', tag: 'CYW', logoUrl: undefined, groupId: 'g2' },
-  { _id: 't8', name: 'Steel Hawks', tag: 'STH', logoUrl: undefined, groupId: 'g2' },
-  { _id: 't9', name: 'Titan Corps', tag: 'TTN', logoUrl: undefined, groupId: 'g3' },
-  { _id: 't10', name: 'Neon Blaze', tag: 'NBL', logoUrl: undefined, groupId: 'g3' },
-  { _id: 't11', name: 'Shadow Strike', tag: 'SHD', logoUrl: undefined, groupId: 'g3' },
-  { _id: 't12', name: 'Gold Rush', tag: 'GLD', logoUrl: undefined, groupId: 'g3' },
-  { _id: 't13', name: 'Void Walkers', tag: 'VDW', logoUrl: undefined, groupId: 'g4' },
-  { _id: 't14', name: 'Crimson Edge', tag: 'CRM', logoUrl: undefined, groupId: 'g4' },
-  { _id: 't15', name: 'Frost Bite', tag: 'FRB', logoUrl: undefined, groupId: 'g4' },
-  { _id: 't16', name: 'Last Stand', tag: 'LST', logoUrl: undefined, groupId: 'g4' },
+  { _id: 't1',  name: 'Lion Esports',   tag: 'LON', logoUrl: '/logos/lion.png',    groupId: 'g1' },
+  { _id: 't2',  name: 'Dragon DRG',     tag: 'DRG', logoUrl: '/logos/dragon.png',  groupId: 'g1' },
+  { _id: 't3',  name: 'Phoenix Rebirth',tag: 'PHX', logoUrl: '/logos/phoenix.png', groupId: 'g1' },
+  { _id: 't4',  name: 'Arena Alpha',    tag: 'ALF', logoUrl: '/logos/wolf.png',    groupId: 'g1' },
+  { _id: 't5',  name: 'Team Vortex',    tag: 'VTX', logoUrl: '/logos/lion.png',    groupId: 'g2' },
+  { _id: 't6',  name: 'Sói Cyber',      tag: 'SCY', logoUrl: '/logos/wolf.png',    groupId: 'g2' },
+  { _id: 't7',  name: 'Savage Shark',   tag: 'SS',  logoUrl: '/logos/shark.png',   groupId: 'g2' },
+  { _id: 't8',  name: 'Apex Predators', tag: 'APX', logoUrl: '/logos/tiger.png',   groupId: 'g2' },
+  { _id: 't9',  name: 'Titan Corps',    tag: 'TTN', logoUrl: '/logos/dragon.png',  groupId: 'g3' },
+  { _id: 't10', name: 'Neon Blaze',     tag: 'NBL', logoUrl: '/logos/phoenix.png', groupId: 'g3' },
+  { _id: 't11', name: 'Shadow Strike',  tag: 'SHD', logoUrl: '/logos/wolf.png',    groupId: 'g3' },
+  { _id: 't12', name: 'Gold Rush',      tag: 'GLD', logoUrl: '/logos/lion.png',    groupId: 'g3' },
+  { _id: 't13', name: 'Void Walkers',   tag: 'VDW', logoUrl: '/logos/shark.png',   groupId: 'g4' },
+  { _id: 't14', name: 'Crimson Edge',   tag: 'CRM', logoUrl: '/logos/dragon.png',  groupId: 'g4' },
+  { _id: 't15', name: 'Frost Bite',     tag: 'FRB', logoUrl: '/logos/tiger.png',   groupId: 'g4' },
+  { _id: 't16', name: 'Last Stand',     tag: 'LST', logoUrl: '/logos/phoenix.png', groupId: 'g4' },
 ];
 
 export const MOCK_GROUPS: Group[] = [
@@ -25,20 +27,20 @@ export const MOCK_GROUPS: Group[] = [
     _id: 'g1', name: 'Bảng A',
     teams: MOCK_TEAMS.filter(t => t.groupId === 'g1'),
     standings: [
-      { teamId: 't1', teamName: 'Team Alpha', teamTag: 'ALF', wins: 3, losses: 0, goalDiff: 6, points: 9, rank: 1, advance: true },
-      { teamId: 't2', teamName: 'Dragon Force', teamTag: 'DRG', wins: 2, losses: 1, goalDiff: 2, points: 6, rank: 2, advance: true },
-      { teamId: 't3', teamName: 'Storm Riders', teamTag: 'STR', wins: 1, losses: 2, goalDiff: -2, points: 3, rank: 3 },
-      { teamId: 't4', teamName: 'Iron Shield', teamTag: 'IRN', wins: 0, losses: 3, goalDiff: -6, points: 0, rank: 4 },
+      { teamId: 't1', teamName: 'Lion Esports',    teamTag: 'LON', wins: 13, losses: 1, goalDiff: 6,  points: 33, rank: 1, advance: true,  logoUrl: '/logos/lion.png'    },
+      { teamId: 't2', teamName: 'Dragon DRG',       teamTag: 'DRG', wins: 12, losses: 2, goalDiff: 2,  points: 23, rank: 2, advance: true,  logoUrl: '/logos/dragon.png'  },
+      { teamId: 't3', teamName: 'Phoenix Rebirth',  teamTag: 'PHX', wins: 10, losses: 3, goalDiff: -2, points: 15, rank: 3,                 logoUrl: '/logos/phoenix.png' },
+      { teamId: 't4', teamName: 'Arena Alpha',      teamTag: 'ALF', wins: 3,  losses: 8, goalDiff: -6, points: 0,  rank: 4,                 logoUrl: '/logos/wolf.png'    },
     ],
   },
   {
     _id: 'g2', name: 'Bảng B',
     teams: MOCK_TEAMS.filter(t => t.groupId === 'g2'),
     standings: [
-      { teamId: 't5', teamName: 'Phoenix Rise', teamTag: 'PHX', wins: 3, losses: 0, goalDiff: 5, points: 9, rank: 1, advance: true },
-      { teamId: 't6', teamName: 'Dark Matter', teamTag: 'DKM', wins: 1, losses: 2, goalDiff: -1, points: 3, rank: 2, advance: true },
-      { teamId: 't7', teamName: 'Cyber Wolves', teamTag: 'CYW', wins: 1, losses: 2, goalDiff: -1, points: 3, rank: 3 },
-      { teamId: 't8', teamName: 'Steel Hawks', teamTag: 'STH', wins: 1, losses: 2, goalDiff: -3, points: 3, rank: 4 },
+      { teamId: 't5', teamName: 'Team Vortex',    teamTag: 'VTX', wins: 6,  losses: 4, goalDiff: 5,  points: 10, rank: 1, advance: true,  logoUrl: '/logos/lion.png'  },
+      { teamId: 't6', teamName: 'Sói Cyber',       teamTag: 'SCY', wins: 6,  losses: 4, goalDiff: -1, points: 10, rank: 2, advance: true,  logoUrl: '/logos/wolf.png'  },
+      { teamId: 't7', teamName: 'Savage Shark',    teamTag: 'SS',  wins: 1,  losses: 2, goalDiff: -1, points: 3,  rank: 3,                 logoUrl: '/logos/shark.png' },
+      { teamId: 't8', teamName: 'Apex Predators',  teamTag: 'APX', wins: 1,  losses: 2, goalDiff: -3, points: 3,  rank: 4,                 logoUrl: '/logos/tiger.png' },
     ],
   },
   {
