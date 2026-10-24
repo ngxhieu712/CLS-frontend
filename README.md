@@ -62,6 +62,13 @@ Then change the example fields (`title`, `content`, `tags`). Step-by-step instru
 
 Each app also has its own scripts (`cd BE && npm run dev`, `cd FE && npm run test:watch`, ...).
 
+## Deploy the frontend on Vercel
+
+Import this repository into Vercel and leave **Root Directory** set to `.`. The root `vercel.json`
+installs the frontend dependencies, builds `FE/`, and publishes `FE/dist`; the backend remains in
+the repository but is not part of this frontend deployment. Set `VITE_API_BASE_URL` in the Vercel
+project's environment variables to the deployed backend API URL, ending in `/api`.
+
 ## Project layout
 
 ```

@@ -16,8 +16,8 @@ vi.mock('sonner', () => ({
 
 const submit = () => {
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'a@b.com' } });
-  fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret123' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  fireEvent.change(screen.getByLabelText('Mật khẩu'), { target: { value: 'secret123' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }));
 };
 
 const renderPage = () =>
@@ -45,7 +45,7 @@ describe('LoginPage', () => {
 
     submit();
 
-    expect(await screen.findByText('Verify OTP')).toBeInTheDocument();
+    expect(await screen.findByText('Xác minh OTP')).toBeInTheDocument();
     await waitFor(() => expect(tokenStore.get()).toBeNull());
   });
 });

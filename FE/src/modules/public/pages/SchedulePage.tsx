@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MOCK_MATCHES, MOCK_GROUPS } from '@/shared/lib/mock-data';
+import { MOCK_MATCHES } from '@/shared/lib/mock-data';
 import { PublicSidebar } from '@/shared/components/public-sidebar';
 import type { Match, MatchStatus } from '@/shared/types/esports.types';
 
@@ -108,8 +108,6 @@ const ROUND_FILTERS = ['Vòng Thua', 'Vòng Quarter', 'Vòng Semi', 'Vòng Marte
 
 export const SchedulePage = () => {
   const [statusFilter, setStatusFilter] = useState<MatchStatus | 'all'>('all');
-  const [groupFilter,  setGroupFilter]  = useState('all');
-
   // Date pills từ dữ liệu thật
   const datePills = [...new Set(
     MOCK_MATCHES.map(m => new Date(m.scheduledAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }))
@@ -117,7 +115,6 @@ export const SchedulePage = () => {
 
   const filtered = MOCK_MATCHES.filter(m => {
     if (statusFilter !== 'all' && m.status !== statusFilter) return false;
-    if (groupFilter  !== 'all' && m.groupId !== groupFilter)  return false;
     return true;
   });
 

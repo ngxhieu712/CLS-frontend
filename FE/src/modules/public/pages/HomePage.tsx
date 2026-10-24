@@ -267,7 +267,7 @@ function SectionTitle({
 }
 
 // ─── Mini sparkline SVG ───────────────────────────────────────────────────────
-function Sparkline({ data, color, fill }: { data: number[]; color: string; fill: string }) {
+function Sparkline({ data, color }: { data: number[]; color: string }) {
   const w = 200, h = 48;
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -303,7 +303,7 @@ function StatRow({ label, value, color, data }: {
         <span className="text-slate-500">{label}</span>
         <span className="font-bold" style={{ color }}>{value}</span>
       </div>
-      <Sparkline data={data} color={color} fill={color} />
+      <Sparkline data={data} color={color} />
     </div>
   );
 }

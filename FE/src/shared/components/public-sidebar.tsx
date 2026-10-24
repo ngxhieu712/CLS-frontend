@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MOCK_GROUPS, MOCK_MATCHES, MOCK_TOURNAMENT } from '@/shared/lib/mock-data';
+import { MOCK_GROUPS, MOCK_MATCHES } from '@/shared/lib/mock-data';
 
 // ─── Small logo ──────────────────────────────────────────────────────────────
 function SidebarLogo({ name, tag, logoUrl, size = 22 }: { name: string; tag: string; logoUrl?: string; size?: number }) {
