@@ -1,92 +1,31 @@
-# MERN Student Base (TypeScript)
+# CLS Frontend
 
-A starter for student projects: authentication, profile, image upload, and a complete example feature
-(`notes`) ready to copy. It is built to be extended with AI tools such as Google Antigravity.
+Frontend for the Champion League System, built with React, TypeScript, Vite, and Tailwind CSS.
+The backend is maintained separately in [CLS-backend](https://github.com/ngxhieu712/CLS-backend).
 
-- `BE/` — Node.js + Express 5 + MongoDB (Mongoose) + Zod
-- `FE/` — React 19 + Vite + TanStack Query + shadcn/ui + Tailwind CSS 4
+## Local development
 
-Hướng dẫn tiếng Việt cho học sinh: **[docs/vibe-coding-guide.md](docs/vibe-coding-guide.md)**.
-Instructions for AI agents: **[AGENTS.md](AGENTS.md)**.
-
-## Quick start
-
-Requires Node.js 22+ and Docker (or any MongoDB, e.g. Atlas: set `MONGO_URI` in `BE/.env`).
+Requires Node.js 22 or newer.
 
 ```bash
-npm run setup          # install dependencies, create BE/.env and FE/.env
-docker compose up -d   # start MongoDB
-npm run seed           # demo@example.com / demo1234, admin@example.com / admin1234, 12 sample students
-npm run dev            # backend http://localhost:5003, frontend http://localhost:5173
+npm ci
+copy .env.example .env
+npm run dev
 ```
 
-No email or Cloudinary account is needed to start:
+Set `VITE_API_BASE_URL` in `.env` to the backend API URL, ending in `/api`.
+For local development, the default is `http://localhost:5003/api`.
 
-- Without `SMTP_HOST`, emails (OTP and reset codes) are printed in the backend terminal.
-- Without `CLOUDINARY_*`, image upload answers 503; everything else works.
-- Without `GEMINI_API_KEY`, the chat popup explains that it is not configured; everything else works.
+## Deploy on Vercel
 
-## Features
+Import this repository and leave **Root Directory** set to `.`. Vercel uses the root
+`vercel.json` to build the app and publish `dist`. Add `VITE_API_BASE_URL` to the Vercel
+project's environment variables and set it to the deployed backend API URL, ending in `/api`.
 
-- Register with email OTP verification, login, forgot / reset password
-- Optional email code at login, off by default, toggled per user on **Profile → Security**
-- Profile editing and avatar upload (Cloudinary)
-- Roles (`user`, `admin`) with `requireRole` on the backend and role-gated routes on the frontend
-- `notes` reference module: paginated list, search, tag filter, create / edit / delete, owner-only access, admin view of all notes
-- Admin area (`/admin`, open to every signed-in account in this base; one line on each side locks it to admins): sidebar layout, dashboard with stats, user management (search, filters, sortable
-  table, pagination, edit role / verification, delete, bulk delete) built from reusable `DataTable`, `SearchInput`,
-  `FilterSelect` and `StatCard` components
-- Sample AI chat bot on Google Gemini's free tier, as a floating button in the bottom-right corner that opens a chat popup: set `GEMINI_API_KEY` in `BE/.env`
-  (free key at https://aistudio.google.com/apikey), customize it in `BE/src/config/chatbot.ts` and `FE/src/modules/chat/chat.config.ts`
-
-## Add a feature
+## Checks
 
 ```bash
-npm run gen:module -- product            # BE model/validator/service/controller/route + FE module + tests
-npm run gen:module -- product --remove   # undo
+npm run lint
+npm test
+npm run build
 ```
-
-Then change the example fields (`title`, `content`, `tags`). Step-by-step instructions are in [AGENTS.md](AGENTS.md#adding-a-feature-follow-these-steps-in-order).
-
-## Scripts (repository root)
-
-| Script | Description |
-|---|---|
-| `npm run setup` | Install dependencies for root, `BE` and `FE`; create `.env` files from the examples |
-| `npm run dev` | Run backend and frontend together |
-| `npm run seed` | Create demo accounts (safe to run again) |
-| `npm test` | Backend tests (Vitest + in-memory MongoDB), then frontend tests (Vitest + Testing Library) |
-| `npm run lint` | ESLint on the frontend |
-| `npm run build` | Typecheck and build both apps |
-| `npm run gen:module -- <name>` | Scaffold a feature from the `notes` module |
-
-Each app also has its own scripts (`cd BE && npm run dev`, `cd FE && npm run test:watch`, ...).
-
-## Deploy the frontend on Vercel
-
-Import this repository into Vercel and leave **Root Directory** set to `.`. The root `vercel.json`
-installs the frontend dependencies, builds `FE/`, and publishes `FE/dist`; the backend remains in
-the repository but is not part of this frontend deployment. Set `VITE_API_BASE_URL` in the Vercel
-project's environment variables to the deployed backend API URL, ending in `/api`.
-
-## Project layout
-
-```
-AGENTS.md                  conventions for AI agents (CLAUDE.md imports it)
-.agents/workflows/         Antigravity workflows: /new-module, /check
-docs/vibe-coding-guide.md  student guide (Vietnamese)
-scripts/                   setup and module generator
-BE/src/                    config, models, validators, services, controllers, routes, middlewares, utils
-BE/tests/                  unit and integration tests
-FE/src/app/                module registry (routes + navigation)
-FE/src/modules/            one folder per feature: auth, home, notes, profile
-FE/src/shared/             http client, query client, shared components and hooks
-```
-
-Conventions: [BE/docs/architecture.md](BE/docs/architecture.md), [FE/docs/architecture.md](FE/docs/architecture.md).
-
-## Tests and CI
-
-Backend integration tests run the real app against an in-memory MongoDB; SMTP and Cloudinary are replaced by
-in-memory recorders. Every push and pull request runs tests, lint, typecheck and a generator smoke test on
-GitHub Actions (`.github/workflows/ci.yml`).
