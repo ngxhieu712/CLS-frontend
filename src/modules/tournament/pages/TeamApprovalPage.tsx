@@ -1,189 +1,187 @@
-import { useState } from 'react';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Mail, Phone, Building2, User } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Building2, Check, ChevronDown, ChevronUp, Mail, Phone, Search, ShieldCheck, User, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { PageHeader } from '@/shared/components/page-header';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import { MOCK_APPLICATIONS, type TeamApplication } from '@/shared/lib/mock-data';
 
 type AppStatus = TeamApplication['status'];
+type FilterStatus = AppStatus | 'all';
 
-const STATUS_TABS: { value: AppStatus | 'all'; label: string }[] = [
-  { value: 'all',      label: 'Tất cả' },
-  { value: 'pending',  label: 'Chờ duyệt' },
+const FILTERS: { value: FilterStatus; label: string }[] = [
+  { value: 'pending', label: 'Chờ duyệt' },
   { value: 'approved', label: 'Đã duyệt' },
   { value: 'rejected', label: 'Đã từ chối' },
+  { value: 'all', label: 'Tất cả hồ sơ' },
 ];
 
 export const TeamApprovalPage = () => {
-  const [filter, setFilter]       = useState<AppStatus | 'all'>('pending');
-  const [expanded, setExpanded]   = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [filter, setFilter] = useState<FilterStatus>('pending');
+  const [query, setQuery] = useState('');
+  const [expanded, setExpanded] = useState<string | null>(() => searchParams.get('review'));
   const [rejectReason, setRejectReason] = useState('');
-  const [statuses, setStatuses]   = useState<Record<string, AppStatus>>(
-    Object.fromEntries(MOCK_APPLICATIONS.map(a => [a._id, a.status]))
+  const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
+  const [statuses, setStatuses] = useState<Record<string, AppStatus>>(
+    Object.fromEntries(MOCK_APPLICATIONS.map(({ _id, status }) => [_id, status])),
   );
 
-  const filtered = MOCK_APPLICATIONS.filter(a => filter === 'all' || statuses[a._id] === filter);
-  const pendingCount = MOCK_APPLICATIONS.filter(a => statuses[a._id] === 'pending').length;
+  const pendingCount = Object.values(statuses).filter((status) => status === 'pending').length;
+  const filtered = useMemo(() => MOCK_APPLICATIONS.filter((application) => {
+    const matchesStatus = filter === 'all' || statuses[application._id] === filter;
+    const searchable = `${application.teamName} ${application.teamTag} ${application.managerName} ${application.managerEmail}`.toLowerCase();
+    return matchesStatus && searchable.includes(query.trim().toLowerCase());
+  }), [filter, query, statuses]);
 
   const approve = (id: string) => {
-    setStatuses(prev => ({ ...prev, [id]: 'approved' }));
+    setStatuses((current) => ({ ...current, [id]: 'approved' }));
     setExpanded(null);
-    toast.success('Đã duyệt hồ sơ — email thông báo đã gửi cho quản lý đội.');
+    toast.success('Đã duyệt hồ sơ trong bản demo. Email thông báo sẽ được gửi khi kết nối backend.');
   };
 
   const reject = (id: string) => {
-    if (!rejectReason.trim()) return toast.error('Vui lòng nhập lý do từ chối');
-    setStatuses(prev => ({ ...prev, [id]: 'rejected' }));
-    setExpanded(null);
+    if (!rejectReason.trim()) {
+      toast.error('Nhập lý do từ chối để quản lý đội có thể chỉnh sửa hồ sơ.');
+      return;
+    }
+    setStatuses((current) => ({ ...current, [id]: 'rejected' }));
+    setRejectionReasons((current) => ({ ...current, [id]: rejectReason.trim() }));
+    setFilter('rejected');
+    setExpanded(id);
     setRejectReason('');
-    toast.success('Đã từ chối hồ sơ — email thông báo đã gửi.');
+    toast.success('Đã từ chối hồ sơ trong bản demo.');
   };
-
-  function fmtTime(iso: string) {
-    return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold text-white">Duyệt hồ sơ đội</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            {pendingCount > 0
-              ? <span className="text-amber-400 font-semibold">{pendingCount} hồ sơ chờ duyệt</span>
-              : 'Không có hồ sơ nào chờ duyệt'}
-          </p>
+      <PageHeader
+        title="Duyệt hồ sơ đội"
+        description="Kiểm tra thông tin đăng ký và phản hồi rõ lý do để đội có thể bổ sung."
+      />
+
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="Tình trạng hồ sơ">
+        <CountTile label="Đang chờ" count={pendingCount} tone="amber" />
+        <CountTile label="Đã duyệt" count={Object.values(statuses).filter((status) => status === 'approved').length} tone="green" />
+        <CountTile label="Đã từ chối" count={Object.values(statuses).filter((status) => status === 'rejected').length} tone="red" />
+      </section>
+
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-card p-1">
+          {FILTERS.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={filter === value}
+              onClick={() => setFilter(value)}
+              className={`whitespace-nowrap rounded-md px-3 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                filter === value ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              {label}{value === 'pending' && pendingCount > 0 && <span className="ml-1.5 tabular-nums">({pendingCount})</span>}
+            </button>
+          ))}
+        </div>
+        <div className="relative w-full lg:max-w-xs">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input aria-label="Tìm hồ sơ đội" placeholder="Tìm tên đội, tag, quản lý..." className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} />
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-2 overflow-x-auto">
-        {STATUS_TABS.map(t => (
-          <button
-            key={t.value}
-            onClick={() => setFilter(t.value)}
-            className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
-              filter === t.value
-                ? 'border-amber-500/50 bg-amber-500/15 text-amber-400'
-                : 'border-border bg-muted/30 text-slate-400 hover:text-white'
-            }`}
-          >
-            {t.label}
-            {t.value === 'pending' && pendingCount > 0 && (
-              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-black">
-                {pendingCount}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Application list */}
       <div className="space-y-3">
-        {filtered.map(app => {
-          const status    = statuses[app._id];
-          const isOpen    = expanded === app._id;
+        {filtered.map((application) => {
+          const status = statuses[application._id];
+          const isOpen = expanded === application._id;
           const isPending = status === 'pending';
 
           return (
-            <div key={app._id} className={`overflow-hidden rounded-xl border transition-all ${
-              isPending ? 'border-amber-500/20 bg-card' : 'border-border bg-card'
-            }`}>
-              {/* Row header */}
-              <div
-                className="flex cursor-pointer items-center justify-between gap-4 px-4 py-4 hover:bg-muted/20 transition-colors"
-                onClick={() => setExpanded(isOpen ? null : app._id)}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-sm font-bold text-white">{app.teamName}</span>
-                    <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
-                      [{app.teamTag}]
-                    </span>
-                    <StatusPill status={status} />
+            <article key={application._id} className={`overflow-hidden rounded-xl border bg-card ${isPending ? 'border-amber-500/30' : 'border-border'}`}>
+              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
+                <button
+                  type="button"
+                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left"
+                  aria-expanded={isOpen}
+                  onClick={() => setExpanded(isOpen ? null : application._id)}
+                >
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-sm font-bold text-primary">
+                    {application.teamTag.slice(0, 3)}
                   </div>
-                  <p className="text-xs text-slate-500">
-                    Quản lý: {app.managerName} · {fmtTime(app.submittedAt)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {isPending && !isOpen && (
+                  <span className="min-w-0">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="truncate text-sm font-semibold">{application.teamName}</span>
+                      <span className="text-xs text-muted-foreground">[{application.teamTag}]</span>
+                      <StatusPill status={status} />
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">
+                      {application.managerName} <span aria-hidden="true">·</span> {application.managerEmail}
+                    </span>
+                  </span>
+                </button>
+                <div className="flex items-center gap-2">
+                  {isPending && (
                     <>
-                      <button
-                        onClick={e => { e.stopPropagation(); approve(app._id); }}
-                        className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/25 cursor-pointer transition-colors"
-                      >
-                        Duyệt
-                      </button>
-                      <button
-                        onClick={e => { e.stopPropagation(); setExpanded(app._id); }}
-                        className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/20 cursor-pointer transition-colors"
-                      >
-                        Từ chối
-                      </button>
+                      <Button type="button" size="sm" onClick={() => approve(application._id)}><Check className="size-4" /> Duyệt</Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => setExpanded(application._id)}><X className="size-4" /> Từ chối</Button>
                     </>
                   )}
-                  {isOpen ? <ChevronUp className="size-4 text-slate-500" /> : <ChevronDown className="size-4 text-slate-500" />}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    aria-label={isOpen ? 'Thu gọn hồ sơ' : 'Mở hồ sơ'}
+                    onClick={() => setExpanded(isOpen ? null : application._id)}
+                  >
+                    {isOpen ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                  </Button>
                 </div>
               </div>
 
-              {/* Detail panel */}
               {isOpen && (
-                <div className="border-t border-border bg-background px-4 py-4 space-y-4">
-                  {/* Team info */}
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <InfoRow icon={User} label="Quản lý" value={app.managerName} />
-                    <InfoRow icon={Mail} label="Gmail quản lý" value={app.managerEmail} />
-                    <InfoRow icon={Mail} label="Email đội" value={app.teamEmail} />
-                    <InfoRow icon={Phone} label="SĐT liên hệ" value={app.teamPhone} />
-                    {app.teamOrganization && (
-                      <InfoRow icon={Building2} label="Tổ chức" value={app.teamOrganization} />
-                    )}
+                <div className="space-y-4 border-t border-border bg-muted/20 px-4 py-4">
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <InfoRow icon={User} label="Quản lý đội" value={application.managerName} />
+                    <InfoRow icon={Mail} label="Email quản lý" value={application.managerEmail} />
+                    <InfoRow icon={Mail} label="Email liên hệ đội" value={application.teamEmail} />
+                    <InfoRow icon={Phone} label="Số điện thoại" value={application.teamPhone} />
+                    <InfoRow icon={Building2} label="Tổ chức / trường" value={application.teamOrganization || 'Chưa cung cấp'} />
+                    <InfoRow icon={ShieldCheck} label="Ngày đăng ký" value={new Date(application.submittedAt).toLocaleString('vi-VN')} />
                   </div>
 
-                  {/* Reject reason if already rejected */}
-                  {status === 'rejected' && app.rejectReason && (
-                    <div className="rounded-lg border border-red-500/20 bg-red-500/8 px-3 py-2 text-xs text-red-300">
-                      <span className="font-semibold">Lý do từ chối: </span>{app.rejectReason}
-                    </div>
+                  {status === 'rejected' && (rejectionReasons[application._id] || application.rejectReason) && (
+                    <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                      Lý do đã gửi: {rejectionReasons[application._id] ?? application.rejectReason}
+                    </p>
                   )}
 
-                  {/* Actions for pending */}
                   {isPending && (
-                    <div className="space-y-3 pt-1">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => approve(app._id)}
-                          className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-black cursor-pointer hover:opacity-90"
-                        >
-                          <CheckCircle className="size-4" /> Duyệt hồ sơ
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-xs text-slate-500">Lý do từ chối (không bắt buộc):</p>
-                        <input
+                    <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-end">
+                      <label className="min-w-0 flex-1 space-y-1.5 text-sm font-medium">
+                        <span>Lý do từ chối <span className="text-destructive">(bắt buộc nếu từ chối)</span></span>
+                        <Input
                           value={rejectReason}
-                          onChange={e => setRejectReason(e.target.value)}
-                          placeholder="VD: Tên đội trùng, thông tin không hợp lệ..."
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-amber-500/50 focus:outline-none"
+                          maxLength={240}
+                          placeholder="VD: Bổ sung email liên hệ của đội..."
+                          onChange={(event) => setRejectReason(event.target.value)}
                         />
-                        <button
-                          onClick={() => reject(app._id)}
-                          className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-500/20 cursor-pointer transition-colors"
-                        >
-                          <XCircle className="size-4" /> Từ chối hồ sơ
-                        </button>
+                      </label>
+                      <div className="flex gap-2">
+                        <Button type="button" onClick={() => approve(application._id)}><Check className="size-4" /> Duyệt hồ sơ</Button>
+                        <Button type="button" variant="destructive" onClick={() => reject(application._id)}><X className="size-4" /> Từ chối hồ sơ</Button>
                       </div>
                     </div>
                   )}
                 </div>
               )}
-            </div>
+            </article>
           );
         })}
 
         {filtered.length === 0 && (
-          <div className="py-12 text-center text-slate-600">
-            <CheckCircle className="mx-auto mb-3 size-10 opacity-30" />
-            <p>Không có hồ sơ nào trong danh mục này</p>
+          <div className="rounded-xl border border-dashed border-border bg-card px-5 py-12 text-center">
+            <ShieldCheck className="mx-auto size-8 text-muted-foreground" />
+            <p className="mt-3 text-sm font-medium">Không tìm thấy hồ sơ</p>
+            <p className="mt-1 text-xs text-muted-foreground">Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
           </div>
         )}
       </div>
@@ -191,27 +189,25 @@ export const TeamApprovalPage = () => {
   );
 };
 
-function StatusPill({ status }: { status: AppStatus }) {
-  const cfg = {
-    pending:  { label: 'Chờ duyệt', cls: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
-    approved: { label: 'Đã duyệt',  cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
-    rejected: { label: 'Từ chối',   cls: 'bg-red-500/15 text-red-400 border-red-500/30' },
-  }[status];
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${cfg.cls}`}>
-      {cfg.label}
-    </span>
-  );
+function CountTile({ label, count, tone }: { label: string; count: number; tone: 'amber' | 'green' | 'red' }) {
+  const colors = {
+    amber: 'border-amber-500/25 bg-amber-500/5 text-amber-600 dark:text-amber-400',
+    green: 'border-emerald-500/25 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400',
+    red: 'border-red-500/25 bg-red-500/5 text-red-700 dark:text-red-400',
+  };
+  return <div className={`flex items-center justify-between rounded-lg border px-4 py-3 ${colors[tone]}`}><span className="text-sm font-medium">{label}</span><span className="text-xl font-bold tabular-nums">{count}</span></div>;
 }
 
-function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <Icon className="size-3.5 shrink-0 text-amber-400 mt-0.5" />
-      <div>
-        <p className="text-[10px] text-slate-500">{label}</p>
-        <p className="text-sm text-white">{value}</p>
-      </div>
-    </div>
-  );
+function StatusPill({ status }: { status: AppStatus }) {
+  const styles: Record<AppStatus, string> = {
+    pending: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+    approved: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+    rejected: 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300',
+  };
+  const labels: Record<AppStatus, string> = { pending: 'Chờ duyệt', approved: 'Đã duyệt', rejected: 'Đã từ chối' };
+  return <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${styles[status]}`}>{labels[status]}</span>;
+}
+
+function InfoRow({ icon: Icon, label, value }: { icon: typeof User; label: string; value: string }) {
+  return <div className="flex items-start gap-2.5"><Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-0.5 break-all text-sm font-medium">{value}</p></div></div>;
 }

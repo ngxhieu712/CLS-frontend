@@ -1,99 +1,168 @@
-import { CheckCircle, ArrowRight, Trophy } from 'lucide-react';
-import { MOCK_GROUPS, MOCK_BRACKET } from '@/shared/lib/mock-data';
+import { useMemo, useState } from 'react';
+import { ArrowRight, CheckCircle2, GitBranch, RefreshCw, Trophy } from 'lucide-react';
+import { toast } from 'sonner';
+import { PageHeader } from '@/shared/components/page-header';
 import { TeamAvatar } from '@/shared/components/team-avatar';
+import { Button } from '@/shared/components/ui/button';
+import { MOCK_GROUPS } from '@/shared/lib/mock-data';
 
-const advancingTeams = MOCK_GROUPS.flatMap(g =>
-  g.standings.filter(s => s.advance).map(s => ({ ...s, groupName: g.name }))
-);
+const ROUND_LABELS = ['Tứ kết', 'Bán kết', 'Chung kết'];
 
-const ROUND_LABELS: Record<number, string> = { 1: 'Tứ kết', 2: 'Bán kết', 3: 'Chung kết' };
+type Seed = { teamId: string; teamName: string; teamTag: string; logoUrl?: string; groupName: string; rank: number };
 
-export const PlayoffSetupPage = () => (
-  <div className="space-y-8">
-    <div>
-      <h1 className="text-2xl font-extrabold text-white">Thiết lập Playoff</h1>
-      <p className="mt-1 text-sm text-zinc-500">Xác nhận đội đi tiếp và cấu hình sơ đồ nhánh đấu</p>
-    </div>
+export const PlayoffSetupPage = () => {
+  const [manualAdvancers, setManualAdvancers] = useState<Record<string, string>>({ g3: 't10' });
+  const [generated, setGenerated] = useState(false);
 
-    {/* Advancing teams */}
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <p className="text-sm font-bold text-white">Đội đi tiếp ({advancingTeams.length})</p>
-        <span className="text-xs text-zinc-500">Top 2 mỗi bảng</span>
-      </div>
-      <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-4 divide-x divide-white/5">
-        {MOCK_GROUPS.map(g => (
-          <div key={g._id} className="p-4">
-            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-400">{g.name}</p>
-            {g.standings.filter(s => s.advance).map((s, i) => (
-              <div key={s.teamId} className="mb-2 flex items-center gap-2">
-                <span className={`text-xs font-bold ${i === 0 ? 'text-amber-400' : 'text-zinc-400'}`}>#{s.rank}</span>
-                <span className="text-sm font-medium text-white truncate">{s.teamName}</span>
-                <CheckCircle className="size-3 text-emerald-400 shrink-0 ml-auto" />
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
+  const bracketTeams = useMemo(() => {
+    const seeds: Seed[] = [];
+    for (const group of MOCK_GROUPS) {
+      const standings = [...group.standings].sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.wins - a.wins);
+      const cutoff = standings[1];
+      const tiedAtCutoff = standings.filter((row) => row.points === cutoff.points && row.goalDiff === cutoff.goalDiff);
+      const manualChoice = manualAdvancers[group._id];
+      const chosenSecond = tiedAtCutoff.length > 1
+        ? standings.find((row) => row.teamId === manualChoice) ?? cutoff
+        : cutoff;
+      const first = standings.find((row) => row.teamId !== chosenSecond.teamId) ?? standings[0];
 
-    {/* Bracket preview */}
-    <div>
-      <p className="mb-4 text-sm font-bold text-white">Sơ đồ playoff (nhánh đơn)</p>
-      <div className="overflow-x-auto pb-4">
-        <div className="flex min-w-[600px] items-start gap-6">
-          {[1, 2, 3].map(round => {
-            const slots = MOCK_BRACKET.filter(s => s.round === round);
+      [first, chosenSecond].forEach((row, index) => seeds.push({
+        teamId: row.teamId,
+        teamName: row.teamName,
+        teamTag: row.teamTag,
+        logoUrl: row.logoUrl,
+        groupName: group.name,
+        rank: index + 1,
+      }));
+    }
+    return seeds;
+  }, [manualAdvancers]);
+
+  const quarterFinals = [
+    [bracketTeams[0], bracketTeams[3]],
+    [bracketTeams[2], bracketTeams[1]],
+    [bracketTeams[4], bracketTeams[7]],
+    [bracketTeams[6], bracketTeams[5]],
+  ];
+
+  const tieGroups = MOCK_GROUPS.filter((group) => {
+    const ranked = [...group.standings].sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.wins - a.wins);
+    const cutoff = ranked[1];
+    return ranked.filter((row) => row.points === cutoff.points && row.goalDiff === cutoff.goalDiff).length > 1;
+  });
+
+  const generate = () => {
+    if (bracketTeams.length !== MOCK_GROUPS.length * 2) {
+      toast.error('Mỗi bảng phải có đủ đội trước khi tạo nhánh playoff.');
+      return;
+    }
+    setGenerated(true);
+    toast.success('Đã tạo nhánh playoff bản xem trước từ kết quả vòng bảng.');
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Thiết lập playoff"
+        description="Xác định đội đi tiếp, xử lý đồng điểm và kiểm tra các cặp đấu loại trực tiếp."
+        actions={<Button variant="outline" onClick={generate}><RefreshCw className="size-4" /> Tạo lại nhánh</Button>}
+      />
+
+      <section className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3.5">
+          <div><h2 className="text-sm font-semibold">Suất playoff theo bảng</h2><p className="mt-1 text-xs text-muted-foreground">Hai đội đầu bảng đi tiếp · Xếp theo điểm, hiệu số và số trận thắng.</p></div>
+          <span className="rounded-full border border-emerald-500/25 bg-emerald-500/5 px-2.5 py-1 text-xs text-emerald-700 dark:text-emerald-300">{bracketTeams.length} đội đủ điều kiện</span>
+        </div>
+        <div className="grid divide-y divide-border sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+          {MOCK_GROUPS.map((group) => {
+            const rows = bracketTeams.filter(({ groupName }) => groupName === group.name);
+            const hasTie = tieGroups.some(({ _id }) => _id === group._id);
+            const tiedTeams = [...group.standings]
+              .sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.wins - a.wins)
+              .slice(1)
+              .filter((row) => {
+                const cutoff = [...group.standings].sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.wins - a.wins)[1];
+                return row.points === cutoff.points && row.goalDiff === cutoff.goalDiff;
+              });
+
             return (
-              <div key={round} className="flex flex-1 flex-col gap-4">
-                <div className="rounded-lg border border-amber-500/20 bg-amber-500/8 px-3 py-1.5 text-center text-xs font-bold text-amber-400 uppercase tracking-wider">
-                  {ROUND_LABELS[round]}
-                </div>
-                <div className="flex flex-col justify-around" style={{ minHeight: round === 1 ? 'auto' : round === 2 ? '200px' : '380px' }}>
-                  {slots.map((slot, i) => (
-                    <div key={i} className="mb-3 rounded-xl border border-border bg-card p-3">
-                      <PlayoffTeamRow name={slot.match?.teamA?.name} tag={slot.match?.teamA?.tag} />
-                      <div className="my-1.5 flex items-center gap-2">
-                        <div className="h-px flex-1 bg-muted/80" />
-                        <ArrowRight className="size-3 text-zinc-700" />
-                        <div className="h-px flex-1 bg-muted/80" />
-                      </div>
-                      <PlayoffTeamRow name={slot.match?.teamB?.name} tag={slot.match?.teamB?.tag} />
+              <div key={group._id} className="p-4">
+                <h3 className="mb-3 text-xs font-semibold text-muted-foreground">{group.name}</h3>
+                <div className="space-y-2">
+                  {rows.map((seed) => (
+                    <div key={seed.teamId} className="flex items-center gap-2 rounded-lg border border-border bg-background/70 px-2.5 py-2">
+                      <span className="w-6 text-xs font-semibold tabular-nums text-primary">#{seed.rank}</span>
+                      <TeamAvatar name={seed.teamName} tag={seed.teamTag} size="sm" />
+                      <span className="min-w-0 flex-1 truncate text-xs font-medium">{seed.teamName}</span>
+                      <CheckCircle2 className="size-4 text-emerald-500" />
                     </div>
                   ))}
                 </div>
+                {hasTie && (
+                  <label className="mt-3 block space-y-1.5 text-xs">
+                    <span className="font-medium text-amber-700 dark:text-amber-300">Đồng điểm tại suất cuối — chọn đội đi tiếp</span>
+                    <select
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={manualAdvancers[group._id] ?? tiedTeams[0]?.teamId}
+                      onChange={(event) => setManualAdvancers((current) => ({ ...current, [group._id]: event.target.value }))}
+                    >
+                      {tiedTeams.map((team) => <option key={team.teamId} value={team.teamId}>{team.teamName} · {team.points} điểm · HS {team.goalDiff > 0 ? '+' : ''}{team.goalDiff}</option>)}
+                    </select>
+                  </label>
+                )}
               </div>
             );
           })}
         </div>
-      </div>
-    </div>
+      </section>
 
-    {/* Notice */}
-    <div className="flex items-start gap-3 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-blue-300">
-      <Trophy className="size-4 shrink-0 mt-0.5 text-blue-400" />
-      <p>
-        Cặp đấu playoff được tự động tạo khi admin xác nhận tất cả kết quả vòng bảng.
-        Đội thắng tứ kết sẽ tự động được điền vào bán kết.
-      </p>
-    </div>
-  </div>
-);
+      <section className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><GitBranch className="size-4" /></div>
+            <div><h2 className="text-sm font-semibold">Sơ đồ playoff · Nhánh đơn</h2><p className="mt-1 text-xs text-muted-foreground">Nhất bảng gặp nhì bảng khác theo cặp A–B và C–D.</p></div>
+          </div>
+          {generated && <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Bản xem trước đã tạo</span>}
+        </div>
 
-function PlayoffTeamRow({ name, tag }: { name?: string; tag?: string }) {
+        <div className="overflow-x-auto p-4">
+          <div className="grid min-w-[760px] grid-cols-[1.2fr_1fr_0.85fr] gap-6">
+            <RoundColumn title={ROUND_LABELS[0]}>
+              {quarterFinals.map((pair, index) => <MatchSlot key={index} label={`Tứ kết ${index + 1}`} teams={pair} />)}
+            </RoundColumn>
+            <RoundColumn title={ROUND_LABELS[1]}>
+              <MatchSlot label="Bán kết 1" teams={[]} />
+              <MatchSlot label="Bán kết 2" teams={[]} />
+            </RoundColumn>
+            <RoundColumn title={ROUND_LABELS[2]}>
+              <MatchSlot label="Chung kết" teams={[]} champion />
+            </RoundColumn>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2.5 border-t border-border bg-muted/30 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+          <Trophy className="mt-0.5 size-4 shrink-0 text-primary" />
+          <p>Các vòng tiếp theo sẽ được điền bằng đội thắng ở vòng trước. Đây là dữ liệu mẫu frontend; cần xác nhận toàn bộ kết quả vòng bảng trước khi khóa nhánh.</p>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+function RoundColumn({ title, children }: { title: string; children: React.ReactNode }) {
+  return <div className="space-y-3"><h3 className="rounded-md bg-muted/70 px-3 py-2 text-center text-xs font-semibold">{title}</h3><div className="flex min-h-[440px] flex-col justify-around gap-3">{children}</div></div>;
+}
+
+function MatchSlot({ label, teams, champion = false }: { label: string; teams: (Seed | undefined)[]; champion?: boolean }) {
   return (
-    <div className="flex items-center gap-2">
-      {name ? (
-        <>
-          <TeamAvatar name={name} tag={tag ?? '?'} size="sm" />
-          <span className="text-sm font-medium text-white truncate">{name}</span>
-        </>
-      ) : (
-        <>
-          <div className="size-8 rounded-lg border border-dashed border-border bg-muted/30 shrink-0" />
-          <span className="text-sm text-zinc-600">Chờ xác định</span>
-        </>
-      )}
+    <div className={`rounded-lg border bg-background p-3 ${champion ? 'border-amber-500/30' : 'border-border'}`}>
+      <p className="mb-2 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">{champion && <Trophy className="size-3.5 text-amber-500" />}{label}</p>
+      {[0, 1].map((index) => {
+        const team = teams[index];
+        return <div key={index} className={`flex items-center gap-2 border-t border-border py-2 ${index === 0 ? '' : ''}`}>
+          {team ? <><TeamAvatar name={team.teamName} tag={team.teamTag} size="sm" /><span className="min-w-0 flex-1 truncate text-xs font-medium">{team.teamName}</span><span className="text-[10px] text-muted-foreground">{team.groupName} #{team.rank}</span></> : <><span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">?</span><span className="flex-1 text-xs text-muted-foreground">{index === 0 ? 'Thắng trận trước' : 'Chờ đối thủ'}</span><ArrowRight className="size-3.5 text-muted-foreground" /></>}
+        </div>;
+      })}
     </div>
   );
 }

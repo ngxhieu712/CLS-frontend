@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { adminNavItems, adminRoutes, appWidgets, navItems, protectedRoutes, publicRoutes } from '@/app/modules';
 import { AdminLayout } from '@/shared/components/layout/AdminLayout';
@@ -9,6 +10,7 @@ import { LoginPage } from '@/modules/auth/pages/LoginPage';
 import { RegisterPage } from '@/modules/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from '@/modules/auth/pages/ForgotPasswordPage';
 import { LogoutPage } from '@/modules/auth/pages/LogoutPage';
+import { LoadingState } from '@/shared/components/loading-state';
 
 function App() {
   return (
@@ -43,7 +45,7 @@ function App() {
       {/* ── Admin area — sidebar layout ──────────────────────────── */}
       <Route element={<ProtectedRoute roles={['admin']}><AdminLayout navItems={adminNavItems} /></ProtectedRoute>}>
         {adminRoutes.map(({ path, Component }) => (
-          <Route key={path} path={path} element={<Component />} />
+          <Route key={path} path={path} element={<Suspense fallback={<LoadingState />}><Component /></Suspense>} />
         ))}
       </Route>
 

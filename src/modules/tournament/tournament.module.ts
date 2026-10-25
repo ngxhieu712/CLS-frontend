@@ -1,12 +1,14 @@
+import { lazy } from 'react';
 import { LayoutDashboard, Settings, Users, Shuffle, Calendar, Trophy, ClipboardList } from 'lucide-react';
 import type { AppModule } from '@/app/module.types';
-import { AdminDashboardPage }    from './pages/AdminDashboardPage';
-import { TournamentSetupPage }   from './pages/TournamentSetupPage';
-import { TeamManagementPage }    from './pages/TeamManagementPage';
-import { TeamApprovalPage }      from './pages/TeamApprovalPage';
-import { DrawPage }              from './pages/DrawPage';
-import { AdminSchedulePage }     from './pages/AdminSchedulePage';
-import { PlayoffSetupPage }      from './pages/PlayoffSetupPage';
+
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(({ AdminDashboardPage: Component }) => ({ default: Component })));
+const TournamentSetupPage = lazy(() => import('./pages/TournamentSetupPage').then(({ TournamentSetupPage: Component }) => ({ default: Component })));
+const TeamManagementPage = lazy(() => import('./pages/TeamManagementPage').then(({ TeamManagementPage: Component }) => ({ default: Component })));
+const TeamApprovalPage = lazy(() => import('./pages/TeamApprovalPage').then(({ TeamApprovalPage: Component }) => ({ default: Component })));
+const DrawPage = lazy(() => import('./pages/DrawPage').then(({ DrawPage: Component }) => ({ default: Component })));
+const AdminSchedulePage = lazy(() => import('./pages/AdminSchedulePage').then(({ AdminSchedulePage: Component }) => ({ default: Component })));
+const PlayoffSetupPage = lazy(() => import('./pages/PlayoffSetupPage').then(({ PlayoffSetupPage: Component }) => ({ default: Component })));
 
 export const tournamentModule: AppModule = {
   routes: [],
@@ -20,7 +22,7 @@ export const tournamentModule: AppModule = {
     { path: '/admin/playoff',     Component: PlayoffSetupPage    },
   ],
   adminNavItems: [
-    { to: '/admin',            label: 'Dashboard',          icon: LayoutDashboard },
+    { to: '/admin',            label: 'Tổng quan',           icon: LayoutDashboard },
     { to: '/admin/tournament', label: 'Thiết lập giải',     icon: Settings },
     { to: '/admin/approval',   label: 'Duyệt hồ sơ',       icon: ClipboardList },
     { to: '/admin/teams',      label: 'Đội & Tài khoản',   icon: Users },

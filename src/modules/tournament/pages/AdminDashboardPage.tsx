@@ -1,157 +1,200 @@
-import { CheckCircle, AlertTriangle, Trophy, Users, Calendar, Swords, ClipboardList } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardCheck,
+  ClipboardList,
+  Clock3,
+  Swords,
+  Trophy,
+  Users,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { MOCK_MATCHES, MOCK_TOURNAMENT, MOCK_TEAMS, MOCK_APPLICATIONS } from '@/shared/lib/mock-data';
-import { StatCard } from '@/shared/components/stat-card';
 import { MatchStatusBadge } from '@/shared/components/status-badge';
+import { StatCard } from '@/shared/components/stat-card';
+import { MOCK_APPLICATIONS, MOCK_MATCHES, MOCK_TEAMS, MOCK_TOURNAMENT } from '@/shared/lib/mock-data';
 
-const pendingConfirm = MOCK_MATCHES.filter(m => m.status === 'pending_confirm');
-const liveMatches    = MOCK_MATCHES.filter(m => m.status === 'ongoing');
-const doneCount      = MOCK_MATCHES.filter(m => m.status === 'confirmed').length;
-const pendingTeams   = MOCK_APPLICATIONS.filter(a => a.status === 'pending');
+const pendingConfirm = MOCK_MATCHES.filter(({ status }) => status === 'pending_confirm');
+const liveMatches = MOCK_MATCHES.filter(({ status }) => status === 'ongoing');
+const pendingTeams = MOCK_APPLICATIONS.filter(({ status }) => status === 'pending');
+const approvedTeams = MOCK_TEAMS.length;
+const completedMatches = MOCK_MATCHES.filter(({ status }) => status === 'confirmed').length;
 
 export const AdminDashboardPage = () => (
-  <div className="space-y-8">
-    <div className="flex items-center justify-between">
+  <div className="space-y-7">
+    <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
-        <h1 className="text-2xl font-extrabold text-white">Dashboard Admin</h1>
-        <p className="mt-1 text-sm text-zinc-500">{MOCK_TOURNAMENT.name}</p>
+        <h1 className="text-2xl font-bold tracking-tight">Tổng quan giải đấu</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {MOCK_TOURNAMENT.name} <span className="mx-1.5 text-border">/</span> Vận hành giải trong một nơi.
+        </p>
       </div>
-      <Link to="/admin/tournament" className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-500/20 transition-colors">
-        Thiết lập giải
+      <Link
+        to="/admin/tournament"
+        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Trophy className="size-4" />
+        Cài đặt giải
       </Link>
-    </div>
+    </header>
 
-    {/* Stats */}
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard label="Tổng số đội" value={MOCK_TEAMS.length} icon={Users} hint="4 bảng đấu" />
-      <StatCard label="Tổng số trận" value={MOCK_MATCHES.length} icon={Swords} hint={`${doneCount} đã hoàn thành`} />
-      <StatCard label="Đang diễn ra" value={liveMatches.length} icon={Trophy} />
-      <StatCard label="Chờ xác nhận" value={pendingConfirm.length} icon={AlertTriangle} hint="cần xử lý" />
-    </div>
+    <section aria-label="Chỉ số giải đấu" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <StatCard label="Đội đã duyệt" value={approvedTeams} icon={Users} hint="Đang tham gia vòng bảng" />
+      <StatCard label="Trận đang diễn ra" value={liveMatches.length} icon={Swords} hint={`${completedMatches} trận đã xác nhận`} />
+      <StatCard label="Hồ sơ chờ duyệt" value={pendingTeams.length} icon={ClipboardList} hint="Cần kiểm tra thông tin đội" />
+      <StatCard label="Kết quả cần xác nhận" value={pendingConfirm.length} icon={ClipboardCheck} hint="Trọng tài đã gửi kết quả" />
+    </section>
 
-    {/* Hồ sơ đội chờ duyệt */}
-    <div className="rounded-xl border border-blue-500/20 bg-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-blue-500/20 bg-blue-500/5 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <ClipboardList className="size-4 text-blue-400" />
-          <p className="text-sm font-bold text-blue-400">Hồ sơ đội chờ duyệt ({pendingTeams.length})</p>
-        </div>
-        <Link to="/admin/approval" className="text-xs text-zinc-500 hover:text-amber-400 transition-colors">Xem tất cả →</Link>
-      </div>
-      <div className="divide-y divide-white/5">
-        {pendingTeams.slice(0, 3).map(app => (
-          <div key={app._id} className="flex items-center justify-between gap-4 px-4 py-3">
+    <section className="grid gap-5 xl:grid-cols-2" aria-label="Hàng đợi xử lý nhanh">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <AlertTriangle className="size-4" />
+            </div>
             <div>
-              <p className="text-sm font-semibold text-white">
-                {app.teamName} <span className="text-xs text-amber-400">[{app.teamTag}]</span>
-              </p>
-              <p className="text-xs text-zinc-500">Quản lý: {app.managerName} · {app.managerEmail}</p>
+              <h2 className="text-sm font-semibold">Kết quả chờ xác nhận</h2>
+              <p className="text-xs text-muted-foreground">{pendingConfirm.length} trận trong hàng đợi</p>
             </div>
-            <Link to="/admin/approval" className="shrink-0 rounded-lg bg-blue-500/15 border border-blue-500/30 px-3 py-1.5 text-xs font-semibold text-blue-400 hover:bg-blue-500/25 transition-colors">
-              Xem & duyệt
-            </Link>
           </div>
-        ))}
-        {pendingTeams.length === 0 && (
-          <div className="flex items-center gap-2 px-4 py-6 text-sm text-zinc-600">
-            <CheckCircle className="size-4 text-emerald-500" />
-            Không có hồ sơ nào chờ duyệt
-          </div>
-        )}
-        {pendingTeams.length > 3 && (
-          <div className="px-4 py-2 text-center">
-            <Link to="/admin/approval" className="text-xs text-amber-400 hover:underline">
-              Xem thêm {pendingTeams.length - 3} hồ sơ →
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
-
-    {/* Pending confirm — hàng đợi quan trọng nhất */}
-    <div className="rounded-xl border border-orange-500/20 bg-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-orange-500/20 bg-orange-500/5 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="size-4 text-orange-400" />
-          <p className="text-sm font-bold text-orange-400">Kết quả chờ xác nhận ({pendingConfirm.length})</p>
+          <Link className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline" to="/admin/schedule">
+            Tất cả <ArrowRight className="size-3.5" />
+          </Link>
         </div>
-        <Link to="/admin/schedule" className="text-xs text-zinc-500 hover:text-amber-400 transition-colors">Xem tất cả →</Link>
-      </div>
-      <div className="divide-y divide-white/5">
-        {pendingConfirm.map(m => (
-          <div key={m._id} className="flex items-center justify-between gap-4 px-4 py-4">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-zinc-500 mb-1">{m.round}</p>
-              <p className="text-sm font-semibold text-white">
-                {m.teamA?.name ?? 'TBD'}
-                <span className="mx-2 font-black text-amber-400">{m.scoreA} : {m.scoreB}</span>
-                {m.teamB?.name ?? 'TBD'}
-              </p>
+        <div className="divide-y divide-border">
+          {pendingConfirm.slice(0, 3).map((match) => (
+            <div key={match._id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">
+                  {match.teamA?.name ?? 'TBD'} <span className="mx-1.5 font-bold tabular-nums text-primary">{match.scoreA} : {match.scoreB}</span>
+                  {match.teamB?.name ?? 'TBD'}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <MatchStatusBadge status={match.status} />
+                <Link
+                  to={`/admin/schedule?review=${match._id}`}
+                  className="inline-flex h-8 items-center rounded-md bg-emerald-600 px-3 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Xác nhận
+                </Link>
+                <Link
+                  to={`/admin/schedule?edit=${match._id}`}
+                  className="inline-flex h-8 items-center rounded-md border border-input px-3 text-xs font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Sửa / Mở lại
+                </Link>
+              </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <MatchStatusBadge status={m.status} />
-              <Link
-                to={`/admin/schedule`}
-                className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-black hover:opacity-90 transition-opacity"
-              >
-                Xác nhận
-              </Link>
-            </div>
-          </div>
-        ))}
-        {pendingConfirm.length === 0 && (
-          <div className="flex items-center gap-2 px-4 py-6 text-sm text-zinc-600">
-            <CheckCircle className="size-4 text-emerald-500" />
-            Không có kết quả nào chờ xác nhận
-          </div>
-        )}
-      </div>
-    </div>
-
-    {/* Live matches */}
-    {liveMatches.length > 0 && (
-      <div className="rounded-xl border border-amber-500/20 bg-card overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-amber-500/20 px-4 py-3">
-          <span className="size-2 animate-pulse rounded-full bg-amber-500" />
-          <p className="text-sm font-bold text-amber-400">Đang diễn ra ({liveMatches.length})</p>
+          ))}
+          {pendingConfirm.length === 0 && (
+            <p className="flex items-center gap-2 px-4 py-7 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-4 text-emerald-500" /> Không có kết quả cần xử lý.
+            </p>
+          )}
         </div>
-        <div className="divide-y divide-white/5">
-          {liveMatches.map(m => (
-            <div key={m._id} className="flex items-center justify-between gap-4 px-4 py-3">
-              <p className="text-sm text-zinc-300">
-                {m.teamA?.name ?? 'TBD'} <span className="font-black text-amber-400">{m.scoreA}:{m.scoreB}</span> {m.teamB?.name ?? 'TBD'}
-                {m.isProvisional && <span className="ml-2 text-xs text-amber-500">Tạm thời</span>}
-              </p>
-              <span className="text-xs text-zinc-600">{m.round}</span>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+              <ClipboardList className="size-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold">Hồ sơ đội chờ duyệt</h2>
+              <p className="text-xs text-muted-foreground">{pendingTeams.length} hồ sơ cần xem</p>
+            </div>
+          </div>
+          <Link className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline" to="/admin/approval">
+            Tất cả <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+        <div className="divide-y divide-border">
+          {pendingTeams.slice(0, 3).map((application) => (
+            <div key={application._id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">
+                  {application.teamName} <span className="ml-1 text-xs text-muted-foreground">[{application.teamTag}]</span>
+                </p>
+                <p className="mt-1 truncate text-xs text-muted-foreground">{application.managerName} · {application.managerEmail}</p>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  to={`/admin/approval?review=${application._id}`}
+                  className="inline-flex h-8 items-center rounded-md bg-emerald-600 px-3 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Duyệt
+                </Link>
+                <Link
+                  to={`/admin/approval?review=${application._id}`}
+                  className="inline-flex h-8 items-center rounded-md border border-input px-3 text-xs font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Từ chối
+                </Link>
+              </div>
+            </div>
+          ))}
+          {pendingTeams.length === 0 && (
+            <p className="flex items-center gap-2 px-4 py-7 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-4 text-emerald-500" /> Không có hồ sơ cần xử lý.
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
+          <div>
+            <h2 className="text-sm font-semibold">Diễn biến trận đấu</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Trạng thái trực tiếp và lịch sắp tới</p>
+          </div>
+          <Link className="text-xs font-medium text-primary hover:underline" to="/admin/schedule">Mở lịch đấu</Link>
+        </div>
+        <div className="divide-y divide-border">
+          {MOCK_MATCHES.filter(({ status }) => status === 'ongoing' || status === 'scheduled').slice(0, 5).map((match) => (
+            <div key={match._id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{match.teamA?.name ?? 'TBD'} <span className="mx-1 text-muted-foreground">vs</span> {match.teamB?.name ?? 'TBD'}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {match.status === 'ongoing' && <span className="size-2 animate-pulse rounded-full bg-red-500" aria-label="Đang trực tiếp" />}
+                <MatchStatusBadge status={match.status} />
+                <span className="hidden text-xs tabular-nums text-muted-foreground sm:inline">
+                  {new Date(match.scheduledAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       </div>
-    )}
 
-    {/* Quick links */}
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {[
-        { to: '/admin/teams',    label: 'Quản lý đội & tài khoản', icon: Users,          desc: `${MOCK_TEAMS.length} đội tham dự` },
-        { to: '/admin/approval', label: 'Duyệt hồ sơ đội',         icon: ClipboardList,  desc: `${pendingTeams.length} chờ duyệt` },
-        { to: '/admin/draw',     label: 'Chia bảng & Bốc thăm',    icon: Trophy,         desc: '4 bảng × 4 đội' },
-        { to: '/admin/schedule', label: 'Lịch đấu & Phân công',     icon: Calendar,       desc: `${MOCK_MATCHES.length} trận` },
-        { to: '/admin/playoff',  label: 'Thiết lập Playoff',        icon: Swords,         desc: 'Nhánh đơn' },
-      ].map(item => (
-        <Link
-          key={item.to}
-          to={item.to}
-          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-amber-500/30 transition-all group"
-        >
-          <div className="flex size-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
-            <item.icon className="size-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">{item.label}</p>
-            <p className="text-xs text-zinc-600">{item.desc}</p>
-          </div>
-        </Link>
-      ))}
-    </div>
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold">Lối tắt vận hành</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Đi thẳng đến công việc thường dùng</p>
+        </div>
+        <div className="space-y-2">
+          {[
+            { to: '/admin/teams', label: 'Đội & tài khoản', detail: `${MOCK_TEAMS.length} đội`, icon: Users },
+            { to: '/admin/draw', label: 'Chia bảng & bốc thăm', detail: '4 bảng đấu', icon: Trophy },
+            { to: '/admin/schedule', label: 'Lịch đấu & trọng tài', detail: `${MOCK_MATCHES.length} trận`, icon: CalendarDays },
+            { to: '/admin/playoff', label: 'Thiết lập playoff', detail: 'Nhánh đơn', icon: Clock3 },
+          ].map(({ to, label, detail, icon: Icon }) => (
+            <Link key={to} to={to} className="group flex items-center gap-3 rounded-lg border border-border/70 px-3 py-2.5 transition-colors hover:border-primary/40 hover:bg-muted/50">
+              <Icon className="size-4 text-muted-foreground group-hover:text-primary" />
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">{label}</span>
+              <span className="text-xs text-muted-foreground">{detail}</span>
+              <ArrowRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   </div>
 );

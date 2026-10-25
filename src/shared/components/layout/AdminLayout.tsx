@@ -1,8 +1,9 @@
-import { ArrowLeft, LogOut, Menu, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, Bell, LogOut, Menu, ShieldCheck, X } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import type { NavItem } from '@/app/module.types';
 import { useCurrentUser, useLogout } from '@/modules/auth/hooks/use-current-user';
+import { MOCK_APPLICATIONS, MOCK_MATCHES } from '@/shared/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import { ThemeToggle } from '@/shared/components/ui/theme-toggle';
@@ -21,16 +22,23 @@ interface AdminLayoutProps {
 export const AdminLayout = ({ navItems }: AdminLayoutProps) => {
   const { data: user } = useCurrentUser();
   const handleLogout = useLogout();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '??';
+  const activePage = navItems.find((item) => item.to === location.pathname);
+  const pendingCount = MOCK_APPLICATIONS.filter(({ status }) => status === 'pending').length
+    + MOCK_MATCHES.filter(({ status }) => status === 'pending_confirm').length;
 
   const sidebar = (
     <nav aria-label="Admin" className="flex h-full flex-col gap-1 p-3">
-      <Link to={ADMIN_HOME} className="mb-4 flex items-center gap-2 px-3 py-2 text-sm font-semibold">
-        <div className="flex size-7 items-center justify-center rounded-lg bg-primary/20 text-primary">
+      <Link to={ADMIN_HOME} className="mb-4 flex items-center gap-2.5 rounded-md px-3 py-2">
+        <div className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
           <ShieldCheck className="size-4" />
         </div>
-        Admin
+        <span>
+          <span className="block text-sm font-bold tracking-wide">CHAMPION LEAGUE</span>
+          <span className="mt-0.5 block text-[11px] font-normal text-muted-foreground">Cổng quản trị giải đấu</span>
+        </span>
       </Link>
       {navItems.map((item) => (
         <NavLink
@@ -90,12 +98,24 @@ export const AdminLayout = ({ navItems }: AdminLayoutProps) => {
           <Button variant="ghost" size="sm" className="lg:hidden" aria-label="Open menu" onClick={() => setMenuOpen(true)}>
             <Menu className="size-5" />
           </Button>
+          <div className="flex min-w-0 flex-1 items-center gap-3 pl-2 lg:pl-0">
+            <span className="truncate text-sm font-semibold">{activePage?.label ?? 'Quản trị hệ thống'}</span>
+          </div>
           <div className="ml-auto flex items-center gap-2">
+            <Link
+              to="/admin"
+              aria-label={`${pendingCount} thông báo cần xử lý`}
+              className="relative flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Bell className="size-4" />
+              {pendingCount > 0 && <span className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-4 text-white">{pendingCount}</span>}
+            </Link>
             <ThemeToggle />
             <Avatar className="size-8">
               <AvatarImage src={user?.avatarUrl} alt={user?.email} />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
+            <span className="hidden max-w-40 truncate text-xs text-muted-foreground xl:inline">{user?.displayName ?? user?.email ?? 'Admin'}</span>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5 text-muted-foreground hover:text-foreground">
               <LogOut className="size-4" />
               <span className="hidden sm:inline">Logout</span>
