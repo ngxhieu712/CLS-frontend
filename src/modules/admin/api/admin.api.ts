@@ -1,5 +1,5 @@
 import { http } from '@/shared/api/http';
-import type { MessageResponse } from '@/modules/auth/types/auth.types';
+// import type { MessageResponse } from '@/modules/auth/types/auth.types'; // Unused
 import type {
   AdminAccount,
   AdminTeamListParams,

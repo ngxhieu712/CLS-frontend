@@ -112,10 +112,10 @@ export const AdminLayout = ({ navItems }: AdminLayoutProps) => {
             </Link>
             <ThemeToggle />
             <Avatar className="size-8">
-              <AvatarImage src={user?.avatarUrl} alt={user?.email} />
+              <AvatarImage src={undefined} alt={user?.email} /> {/* TODO: avatarUrl not in BE */}
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-            <span className="hidden max-w-40 truncate text-xs text-muted-foreground xl:inline">{user?.displayName ?? user?.email ?? 'Admin'}</span>
+            <span className="hidden max-w-40 truncate text-xs text-muted-foreground xl:inline">{user?.fullName ?? user?.email ?? 'Admin'}</span>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5 text-muted-foreground hover:text-foreground">
               <LogOut className="size-4" />
               <span className="hidden sm:inline">Logout</span>

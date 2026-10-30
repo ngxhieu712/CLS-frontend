@@ -25,12 +25,12 @@ export const userColumns = ({ currentUserId, onEdit, onDelete }: UserColumnOptio
       cell: (user) => (
         <div className="flex items-center gap-3">
           <Avatar className="size-8">
-            <AvatarImage src={user.avatarUrl} alt="" />
+            <AvatarImage src={undefined} alt="" /> {/* TODO: avatarUrl not in BE */}
             <AvatarFallback className="text-xs">{user.email.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <p className="truncate font-medium">
-              {user.displayName || '—'}
+              {user.fullName || '—'}
               {user._id === currentUserId && <span className="ml-1 text-xs text-muted-foreground">(you)</span>}
             </p>
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
@@ -47,8 +47,7 @@ export const userColumns = ({ currentUserId, onEdit, onDelete }: UserColumnOptio
     {
       id: 'verified',
       header: 'Email',
-      cell: (user) =>
-        user.isEmailVerified ? <Badge variant="outline">Verified</Badge> : <Badge variant="destructive">Unverified</Badge>,
+      cell: () => <Badge variant="outline">Not Implemented</Badge>, // TODO: isEmailVerified not in BE
     },
     {
       id: 'createdAt',

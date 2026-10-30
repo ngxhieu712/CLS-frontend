@@ -20,14 +20,12 @@ export const ProfilePage = () => {
         {/* Left column — avatar + email */}
         <Card className="flex flex-col items-center gap-4 p-6 lg:col-span-1">
           <AvatarUpload
-            currentAvatarUrl={user?.avatarUrl}
+            currentAvatarUrl={undefined} // TODO: avatarUrl not in BE
             userInitials={initials}
             onUploadSuccess={() => queryClient.invalidateQueries({ queryKey: currentUserKey })}
           />
           <div className="text-center">
-            {user?.displayName && (
-              <p className="font-semibold">{user.displayName}</p>
-            )}
+            <p className="font-semibold">{user?.fullName}</p>
             <p className="text-sm text-muted-foreground">{user?.email ?? '—'}</p>
           </div>
         </Card>
@@ -42,9 +40,9 @@ export const ProfilePage = () => {
               {user ? (
                 <ProfileEditForm
                   defaultValues={{
-                    displayName: user.displayName ?? '',
-                    bio: user.bio ?? '',
-                    phone: user.phone ?? '',
+                    displayName: user.fullName, // TODO: bio and phone not in BE
+                    bio: '',
+                    phone: '',
                   }}
                 />
               ) : (

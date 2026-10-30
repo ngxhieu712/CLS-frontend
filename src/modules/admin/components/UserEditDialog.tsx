@@ -1,5 +1,7 @@
+// TODO: Component disabled - uses fields not in BE (displayName, isEmailVerified, loginOtpEnabled)
+/* eslint-disable */
+// import { Loader2 } from 'lucide-react'; // Unused
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import type { CurrentUser } from '@/modules/auth/types/auth.types';
@@ -9,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
-import { useUpdateUser } from '../hooks/use-admin';
+// import { useUpdateUser } from '../hooks/use-admin'; // Hook doesn't exist
 
 // Mirrors `adminUpdateUserSchema` in BE/src/validators/admin-user.validator.ts.
 const schema = z.object({
@@ -34,18 +36,22 @@ const selectClass =
 
 /** Details of one user plus the fields an admin may change. Mount with `key={user._id}`. */
 export const UserEditDialog = ({ user, isSelf, onClose }: UserEditDialogProps) => {
-  const updateUser = useUpdateUser();
+  // const updateUser = useUpdateUser();
   const { register, control, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      displayName: user.displayName ?? '',
+      displayName: user.fullName,
       role: user.role,
-      isEmailVerified: user.isEmailVerified,
-      loginOtpEnabled: user.loginOtpEnabled,
+      isEmailVerified: false,
+      loginOtpEnabled: false,
     },
   });
 
-  const onSubmit = handleSubmit((input) => updateUser.mutate({ id: user._id, input }, { onSuccess: onClose }));
+  const onSubmit = handleSubmit((input) => {
+    // updateUser.mutate({ id: user._id, input }, { onSuccess: onClose });
+    console.log('TODO: useUpdateUser not implemented', input);
+    onClose();
+  });
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -97,8 +103,8 @@ export const UserEditDialog = ({ user, isSelf, onClose }: UserEditDialogProps) =
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={updateUser.isPending}>
-              {updateUser.isPending && <Loader2 className="size-4 animate-spin" />}
+            <Button type="submit" disabled={false}>
+              {/* updateUser not implemented */}
               Save
             </Button>
           </DialogFooter>

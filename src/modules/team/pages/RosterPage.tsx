@@ -30,5 +30,36 @@ export const RosterPage = () => {
 
 function PlayerTable({ title, players, onToggle, onRemove, disabled }: { title: string; players: { _id: string; nickname: string; fullName?: string; position?: string; status: 'starter' | 'substitute' }[]; onToggle: (id: string, status: 'starter' | 'substitute') => void; onRemove: (id: string) => void; disabled: boolean }) {
   if (!players.length) return null;
-  return <div className="overflow-hidden rounded-xl border bg-card"><h2 className="border-b px-4 py-3 text-sm font-semibold">{title} ({players.length})</h2><table className="w-full text-sm"><thead><tr className="text-left text-muted-foreground"><th className="px-4 py-2">Nickname</th><th className="px-4 py-2">Họ tên</th><th className="px-4 py-2">Vị trí</th><th className="px-4 py-2" /></tr></thead><tbody>{players.map((player) => <tr key={player._id} className="border-t"><td className="px-4 py-3 font-medium">{player.nickname}</td><td className="px-4 py-3">{player.fullName || '—'}</td><td className="px-4 py-3">{player.position || '—'}</td><td className="flex justify-end gap-2 px-4 py-2"><Button size="icon" variant="ghost" disabled={disabled} aria-label="Đổi trạng thái" onClick={() => onToggle(player._id, player.status === 'starter' ? 'substitute' : 'starter')}><Star className="size-4" fill={player.status === 'starter' ? 'currentColor' : 'none'} /></Button><Button size="icon" variant="ghost" disabled={disabled} aria-label="Xóa tuyển thủ" onClick={() => onRemove(player._id)}><Trash2 className="size-4" /></Button></td></tr>)}</tbody></table></div>;
+  return (
+    <div className="overflow-hidden rounded-xl border bg-card">
+      <h2 className="border-b px-4 py-3 text-sm font-semibold">{title} ({players.length})</h2>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left text-muted-foreground">
+            <th className="px-4 py-2">Nickname</th>
+            <th className="px-4 py-2">Họ tên</th>
+            <th className="px-4 py-2">Vị trí</th>
+            <th className="px-4 py-2" />
+          </tr>
+        </thead>
+        <tbody>
+          {players.map((player) => (
+            <tr key={player._id} className="border-t">
+              <td className="px-4 py-3 font-medium">{player.nickname}</td>
+              <td className="px-4 py-3">{player.fullName || '—'}</td>
+              <td className="px-4 py-3">{player.position || '—'}</td>
+              <td className="flex justify-end gap-2 px-4 py-2">
+                <Button size="sm" variant="ghost" disabled={disabled} aria-label="Đổi trạng thái" onClick={() => onToggle(player._id, player.status === 'starter' ? 'substitute' : 'starter')} className="h-8 w-8 p-0">
+                  <Star className="size-4" fill={player.status === 'starter' ? 'currentColor' : 'none'} />
+                </Button>
+                <Button size="sm" variant="ghost" disabled={disabled} aria-label="Xóa tuyển thủ" onClick={() => onRemove(player._id)} className="h-8 w-8 p-0">
+                  <Trash2 className="size-4" />
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }

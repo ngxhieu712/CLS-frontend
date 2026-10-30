@@ -18,7 +18,7 @@ const createAccountSchema = z.object({
   fullName: z.string().trim().min(2, 'Tên phải có ít nhất 2 ký tự').max(100, 'Tên quá dài'),
   email: z.string().trim().email('Email không hợp lệ'),
   password: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự').max(128, 'Mật khẩu quá dài'),
-  role: z.enum(['referee', 'editor'], { required_error: 'Chọn vai trò' }),
+  role: z.enum(['referee', 'editor'], { message: 'Chọn vai trò' }), // Zod 4: required_error → message
 });
 
 interface CreateAccountDialogProps {
@@ -58,16 +58,18 @@ export const CreateAccountDialog = ({ open, onOpenChange }: CreateAccountDialogP
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField label="Họ tên" required error={form.formState.errors.fullName?.message}>
+          <FormField id="fullName" label="Họ tên" error={form.formState.errors.fullName?.message}>
             <input
+              id="fullName"
               {...form.register('fullName')}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Nguyễn Văn A"
             />
           </FormField>
 
-          <FormField label="Email" required error={form.formState.errors.email?.message}>
+          <FormField id="email" label="Email" error={form.formState.errors.email?.message}>
             <input
+              id="email"
               {...form.register('email')}
               type="email"
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -75,8 +77,9 @@ export const CreateAccountDialog = ({ open, onOpenChange }: CreateAccountDialogP
             />
           </FormField>
 
-          <FormField label="Mật khẩu tạm" required error={form.formState.errors.password?.message}>
+          <FormField id="password" label="Mật khẩu tạm" error={form.formState.errors.password?.message}>
             <input
+              id="password"
               {...form.register('password')}
               type="password"
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -84,8 +87,9 @@ export const CreateAccountDialog = ({ open, onOpenChange }: CreateAccountDialogP
             />
           </FormField>
 
-          <FormField label="Vai trò" required error={form.formState.errors.role?.message}>
+          <FormField id="role" label="Vai trò" error={form.formState.errors.role?.message}>
             <select
+              id="role"
               {...form.register('role')}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >

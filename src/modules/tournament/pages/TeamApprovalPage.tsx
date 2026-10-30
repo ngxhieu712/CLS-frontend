@@ -66,8 +66,8 @@ export const TeamApprovalPage = () => {
     );
   };
 
-  if (isLoading) return <LoadingState message="Đang tải danh sách đội..." />;
-  if (error) return <ErrorState message="Không thể tải danh sách đội. Vui lòng thử lại." />;
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState />;
 
   return (
     <div className="space-y-6">

@@ -12,16 +12,18 @@ interface SecuritySettingsProps {
 }
 
 /** Lets the user turn the emailed login code (second login step) on or off. */
-export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
+export const SecuritySettings = ({ user: _user }: SecuritySettingsProps) => { // user renamed to _user (unused)
   const queryClient = useQueryClient();
+
+  // TODO: loginOtpEnabled not in BE model - feature disabled (variable removed)
 
   // Optimistic update: the switch flips immediately and flips back if the request fails.
   const toggleLoginOtp = useMutation({
-    mutationFn: (loginOtpEnabled: boolean) => profileApi.updateSecurity({ loginOtpEnabled }),
-    onMutate: async (loginOtpEnabled) => {
+    mutationFn: (_loginOtpEnabled: boolean) => profileApi.updateSecurity({ loginOtpEnabled: false }),
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: currentUserKey });
       const previous = queryClient.getQueryData<CurrentUser>(currentUserKey);
-      if (previous) queryClient.setQueryData(currentUserKey, { ...previous, loginOtpEnabled });
+      if (previous) queryClient.setQueryData(currentUserKey, previous); // No update since field doesn't exist
       return { previous };
     },
     onError: (error, _loginOtpEnabled, context) => {
@@ -30,26 +32,22 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
     },
     onSuccess: (updated) => {
       queryClient.setQueryData(currentUserKey, updated);
-      toast.success(
-        updated.loginOtpEnabled
-          ? 'Login now asks for a code sent to your email.'
-          : 'Login no longer asks for an email code.',
-      );
+      toast.success('Feature not implemented in backend');
     },
   });
 
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="space-y-1">
-        <Label htmlFor="login-otp">Email code at login</Label>
+        <Label htmlFor="login-otp">Email code at login (Not Implemented)</Label>
         <p className="text-sm text-muted-foreground">
-          After your password, ask for a 6-digit code sent to {user.email}.
+          This feature requires loginOtpEnabled field in BE User model.
         </p>
       </div>
       <Switch
         id="login-otp"
-        checked={user.loginOtpEnabled}
-        disabled={toggleLoginOtp.isPending}
+        checked={false}
+        disabled={true}
         onCheckedChange={(checked) => toggleLoginOtp.mutate(checked)}
       />
     </div>

@@ -34,20 +34,21 @@ export const AdminAccountsPage = () => {
     );
   };
 
-  if (isLoading) return <LoadingState message="Đang tải danh sách tài khoản..." />;
-  if (error) return <ErrorState message="Không thể tải danh sách tài khoản. Vui lòng thử lại." />;
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState />;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Quản lý tài khoản"
         description="Tạo và quản lý tài khoản trọng tài và biên tập viên."
-      >
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="size-4" />
-          Tạo tài khoản
-        </Button>
-      </PageHeader>
+        actions={
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="size-4" />
+            Tạo tài khoản
+          </Button>
+        }
+      />
 
       {accounts.length === 0 ? (
         <EmptyState
@@ -118,8 +119,8 @@ export const AdminAccountsPage = () => {
             ? `Tài khoản ${lockingAccount.email} sẽ có thể đăng nhập trở lại.`
             : `Tài khoản ${lockingAccount?.email} sẽ không thể đăng nhập.`
         }
-        variant={lockingAccount?.status === 'locked' ? 'default' : 'destructive'}
-        actionLabel={lockingAccount?.status === 'locked' ? 'Mở khóa' : 'Khóa'}
+        destructive={lockingAccount?.status !== 'locked'}
+        confirmLabel={lockingAccount?.status === 'locked' ? 'Mở khóa' : 'Khóa'}
         onConfirm={confirmLockUnlock}
       />
     </div>

@@ -27,7 +27,7 @@ const quickActions = [
 export const HomePage = () => {
   const { data: user } = useCurrentUser();
 
-  const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+  const displayName = user?.fullName || user?.email?.split('@')[0] || 'User';
 
   return (
     <div className="space-y-8">

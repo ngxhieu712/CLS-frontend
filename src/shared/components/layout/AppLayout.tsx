@@ -60,7 +60,7 @@ export const AppLayout = ({ navItems: allNavItems, widgets = [] }: AppLayoutProp
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Avatar className="size-8">
-              <AvatarImage src={user?.avatarUrl} alt={user?.email} />
+              <AvatarImage src={undefined} alt={user?.email} /> {/* TODO: avatarUrl not in BE */}
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5 text-muted-foreground hover:text-foreground">

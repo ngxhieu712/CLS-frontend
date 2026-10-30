@@ -30,6 +30,7 @@ export interface CurrentUser {
   role: UserRole;
   status: AccountStatus;
   fullName: string;
+  googleId?: string; // Added from BE model
   teamId?: string;
   teamProfileStatus?: 'pending' | 'approved' | 'rejected';
   rejectReason?: string;

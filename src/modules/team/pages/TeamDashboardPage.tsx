@@ -59,7 +59,7 @@ export const TeamDashboardPage = () => {
         <div>
           <h1 className="text-2xl font-extrabold text-white">Dashboard đội</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {user?.displayName ? `Chào mừng, ${user.displayName}` : 'Chào mừng, Quản lý đội'}
+            {user?.fullName ? `Chào mừng, ${user.fullName}` : 'Chào mừng, Quản lý đội'}
           </p>
         </div>
         <Link
