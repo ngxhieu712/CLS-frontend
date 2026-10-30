@@ -1,20 +1,10 @@
 import axios from 'axios';
-import { tokenStore } from '@/modules/auth/store/token.store';
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5003/api';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
 export const http = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 15000
-});
-
-http.interceptors.request.use((config) => {
-  const token = tokenStore.get();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
+  timeout: 15000,
+  withCredentials: true,
 });
 
 http.interceptors.response.use(
@@ -22,9 +12,8 @@ http.interceptors.response.use(
   (error) => {
     const status = error?.response?.status as number | undefined;
     if (status === 401) {
-      tokenStore.clear();
-      if (window.location.pathname !== '/logout') {
-        window.location.href = '/logout';
+      if (!['/login', '/register', '/forgot-password'].includes(window.location.pathname)) {
+        window.location.href = '/login';
       }
     }
 

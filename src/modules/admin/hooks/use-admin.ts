@@ -1,49 +1,83 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { currentUserKey } from '@/modules/auth/hooks/use-current-user';
 import { adminApi } from '../api/admin.api';
-import type { AdminUpdateUserInput, AdminUserListParams } from '../types/admin.types';
+import type {
+  AdminTeamListParams,
+  CreateAdminAccountInput,
+  ReviewTeamInput,
+  UpdateAccountStatusInput,
+} from '../types/admin.types';
 
 /** Cache keys. Invalidating `adminKeys.all` refreshes every admin query. */
 export const adminKeys = {
   all: ['admin'] as const,
-  stats: () => [...adminKeys.all, 'stats'] as const,
-  users: (params: AdminUserListParams) => [...adminKeys.all, 'users', params] as const,
+  teams: (params: AdminTeamListParams = {}) => [...adminKeys.all, 'teams', params] as const,
+  pendingTeams: () => [...adminKeys.all, 'teams', 'pending'] as const,
+  accounts: () => [...adminKeys.all, 'accounts'] as const,
 };
 
-export const useAdminStats = () => useQuery({ queryKey: adminKeys.stats(), queryFn: adminApi.stats });
+// ===== Team Approval Queries =====
 
-/** Keeps the previous page on screen while the next one loads. */
-export const useAdminUsers = (params: AdminUserListParams) =>
+/** Lấy danh sách đội chờ duyệt */
+export const usePendingTeams = () =>
   useQuery({
-    queryKey: adminKeys.users(params),
-    queryFn: () => adminApi.listUsers(params),
-    placeholderData: keepPreviousData,
+    queryKey: adminKeys.pendingTeams(),
+    queryFn: adminApi.listPendingTeams,
   });
 
-// Mutations: no `onError` — the shared query client toasts the backend message.
+/** Lấy danh sách tất cả đội, có thể lọc theo status */
+export const useAdminTeams = (params: AdminTeamListParams = {}) =>
+  useQuery({
+    queryKey: adminKeys.teams(params),
+    queryFn: () => adminApi.listTeams(params),
+  });
 
-export const useUpdateUser = () => {
+/** Duyệt hoặc từ chối hồ sơ đội */
+export const useReviewTeam = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: AdminUpdateUserInput }) => adminApi.updateUser(id, input),
-    onSuccess: () => {
-      toast.success('User updated.');
-      // The admin may have edited their own account.
-      void queryClient.invalidateQueries({ queryKey: currentUserKey });
-      return queryClient.invalidateQueries({ queryKey: adminKeys.all });
+    mutationFn: ({ id, input }: { id: string; input: ReviewTeamInput }) =>
+      adminApi.reviewTeam(id, input),
+    onSuccess: (data, variables) => {
+      const action = variables.input.action === 'approve' ? 'duyệt' : 'từ chối';
+      toast.success(`Đã ${action} hồ sơ đội "${data.name}".`);
+      // Invalidate cả pending teams và all teams queries
+      void queryClient.invalidateQueries({ queryKey: adminKeys.all });
     },
   });
 };
 
-export const useDeleteUsers = () => {
+// ===== Account Management Queries =====
+
+/** Lấy danh sách tài khoản trọng tài và biên tập viên */
+export const useAdminAccounts = () =>
+  useQuery({
+    queryKey: adminKeys.accounts(),
+    queryFn: adminApi.listAccounts,
+  });
+
+/** Tạo tài khoản trọng tài hoặc biên tập viên */
+export const useCreateAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (ids: string[]) =>
-      ids.length === 1 ? adminApi.deleteUser(ids[0]).then(() => ({ deleted: 1 })) : adminApi.bulkDeleteUsers(ids),
-    onSuccess: ({ deleted }) => {
-      toast.success(deleted === 1 ? 'User deleted.' : `${deleted} users deleted.`);
-      return queryClient.invalidateQueries({ queryKey: adminKeys.all });
+    mutationFn: (input: CreateAdminAccountInput) => adminApi.createAccount(input),
+    onSuccess: (data) => {
+      toast.success(`Đã tạo tài khoản ${data.role === 'referee' ? 'trọng tài' : 'biên tập viên'} cho ${data.email}.`);
+      void queryClient.invalidateQueries({ queryKey: adminKeys.accounts() });
+    },
+  });
+};
+
+/** Khóa hoặc mở khóa tài khoản */
+export const useUpdateAccountStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateAccountStatusInput }) =>
+      adminApi.updateAccountStatus(id, input),
+    onSuccess: (data, variables) => {
+      const action = variables.input.status === 'locked' ? 'khóa' : 'mở khóa';
+      toast.success(`Đã ${action} tài khoản ${data.email}.`);
+      void queryClient.invalidateQueries({ queryKey: adminKeys.accounts() });
     },
   });
 };

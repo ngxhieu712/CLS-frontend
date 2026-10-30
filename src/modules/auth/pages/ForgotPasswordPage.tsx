@@ -17,7 +17,7 @@ const requestSchema = z.object({
 
 const resetSchema = z.object({
   email: z.string().optional(),
-  token: z.string().min(1, 'Token is required'),
+  otp: z.string().regex(/^\d{6}$/, 'OTP must contain 6 digits'),
   newPassword: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -48,7 +48,7 @@ export const ForgotPasswordPage = () => {
 
   const onResetPassword = resetForm.handleSubmit(async (values) => {
     try {
-      await authApi.resetPassword(email || values.email || '', values.token, values.newPassword);
+      await authApi.resetPassword(email || values.email || '', values.otp, values.newPassword);
       toast.success('Password reset successful. You can login now.');
       setStep('request');
     } catch (error) {
@@ -62,8 +62,8 @@ export const ForgotPasswordPage = () => {
         <CardTitle>{step === 'request' ? 'Forgot password' : 'Reset password'}</CardTitle>
         <CardDescription>
           {step === 'request'
-            ? 'Enter your email to receive a reset token.'
-            : `Enter the token sent to ${email} and your new password.`}
+          ? 'Enter your email to receive a reset OTP.'
+            : `Enter the OTP sent to ${email} and your new password.`}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -79,15 +79,15 @@ export const ForgotPasswordPage = () => {
                 <p className="text-xs text-destructive">{requestForm.formState.errors.email.message}</p>
               )}
             </div>
-            <Button className="w-full" type="submit">Send Reset Token</Button>
+            <Button className="w-full" type="submit">Send Reset OTP</Button>
           </form>
         ) : (
           <form className="space-y-4" onSubmit={onResetPassword}>
             <div className="space-y-2">
-              <Label htmlFor="token">Reset Token</Label>
-              <Input id="token" placeholder="Paste token from email" {...resetForm.register('token')} />
-              {resetForm.formState.errors.token && (
-                <p className="text-xs text-destructive">{resetForm.formState.errors.token.message}</p>
+              <Label htmlFor="otp">Reset OTP</Label>
+              <Input id="otp" inputMode="numeric" placeholder="6-digit OTP" {...resetForm.register('otp')} />
+              {resetForm.formState.errors.otp && (
+                <p className="text-xs text-destructive">{resetForm.formState.errors.otp.message}</p>
               )}
             </div>
             <div className="space-y-2">

@@ -6,33 +6,20 @@ export interface AuthPayload {
 export type AccountStatus = 'pending' | 'active' | 'locked' | 'rejected';
 
 export interface TeamRegistrationPayload {
-  displayName: string;
+  fullName: string;
   email: string;
   password: string;
-  teamName: string;
-  teamTag: string;
-  teamEmail: string;
-  teamPhone: string;
-  teamLogo?: string;
-  teamDescription?: string;
-  teamOrganization?: string;
+  team: TeamProfileInput;
 }
 
-export interface CurrentUser {
-  _id: string;
-  email: string;
-  isEmailVerified: boolean;
-  role: UserRole;
-  status: AccountStatus;
-  loginOtpEnabled: boolean;
-  displayName?: string;
-  bio?: string;
-  avatarUrl?: string;
-  phone?: string;
-  teamId?: string;
-  rejectReason?: string;
-  createdAt: string;
-  updatedAt: string;
+export interface TeamProfileInput {
+  name: string;
+  tag: string;
+  contactEmail: string;
+  contactPhone: string;
+  logo?: string;
+  description?: string;
+  organization?: string;
 }
 
 export type UserRole = 'admin' | 'referee' | 'teamManager' | 'editor';
@@ -40,13 +27,12 @@ export type UserRole = 'admin' | 'referee' | 'teamManager' | 'editor';
 export interface CurrentUser {
   _id: string;
   email: string;
-  isEmailVerified: boolean;
   role: UserRole;
-  loginOtpEnabled: boolean;
-  displayName?: string;
-  bio?: string;
-  avatarUrl?: string;
-  phone?: string;
+  status: AccountStatus;
+  fullName: string;
+  teamId?: string;
+  teamProfileStatus?: 'pending' | 'approved' | 'rejected';
+  rejectReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,7 +41,11 @@ export interface MessageResponse {
   message: string;
 }
 
-/** `/auth/login` answers with a token, or asks for the emailed OTP when the user enabled it. */
-export type LoginResponse =
-  | { token: string }
-  | { message: string; requiresOtp: true; email: string };
+export interface LoginResponse { user: CurrentUser; }
+
+export type GoogleLoginResponse = LoginResponse | {
+  needsRegistration: true;
+  email: string;
+  fullName: string;
+  registrationTicket: string;
+};

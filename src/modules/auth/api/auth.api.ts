@@ -1,5 +1,5 @@
 import { http } from '@/shared/api/http';
-import type { AuthPayload, CurrentUser, LoginResponse, MessageResponse, TeamRegistrationPayload } from '../types/auth.types';
+import type { AuthPayload, CurrentUser, GoogleLoginResponse, LoginResponse, MessageResponse, TeamProfileInput, TeamRegistrationPayload } from '../types/auth.types';
 
 /** Every function resolves with the response body (not the Axios response). */
 export const authApi = {
@@ -9,15 +9,18 @@ export const authApi = {
   verifyRegisterOtp: (email: string, otp: string) =>
     http.post<MessageResponse>('/auth/register/verify-otp', { email, otp }).then((r) => r.data),
   /** Nộp lại hồ sơ khi bị từ chối */
-  resubmitProfile: (payload: Partial<TeamRegistrationPayload>) =>
+  resubmitProfile: (payload: Partial<TeamProfileInput>) =>
     http.patch<MessageResponse>('/auth/resubmit', payload).then((r) => r.data),
   login: (payload: AuthPayload) =>
     http.post<LoginResponse>('/auth/login', payload).then((r) => r.data),
-  verifyLoginOtp: (email: string, otp: string) =>
-    http.post<{ token: string }>('/auth/login/verify-otp', { email, otp }).then((r) => r.data),
+  googleLogin: (idToken: string) =>
+    http.post<GoogleLoginResponse>('/auth/google', { idToken }).then((r) => r.data),
+  completeGoogleRegistration: (registrationTicket: string, team: TeamProfileInput) =>
+    http.post<MessageResponse>('/auth/google/register', { registrationTicket, team }).then((r) => r.data),
   forgotPassword: (email: string) =>
     http.post<MessageResponse>('/auth/forgot-password', { email }).then((r) => r.data),
-  resetPassword: (email: string, token: string, newPassword: string) =>
-    http.post<MessageResponse>('/auth/reset-password', { email, token, newPassword }).then((r) => r.data),
+  resetPassword: (email: string, otp: string, newPassword: string) =>
+    http.post<MessageResponse>('/auth/reset-password', { email, otp, newPassword }).then((r) => r.data),
   getMe: () => http.get<CurrentUser>('/auth/me').then((r) => r.data),
+  logout: () => http.post('/auth/logout').then(() => undefined),
 };

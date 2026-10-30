@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,9 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, GitBranch, KeyRound, LockKeyhole, Mail, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '../api/auth.api';
-import { tokenStore } from '../store/token.store';
-import { getApiErrorBody, getApiErrorMessage } from '@/shared/api/api-error';
-import { OtpInput } from '@/shared/components/ui/otp-input';
+import { useSetCurrentUser } from '../hooks/use-current-user';
+import { getApiErrorMessage } from '@/shared/api/api-error';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
@@ -16,78 +15,110 @@ const loginSchema = z.object({
 });
 type FormValues = z.infer<typeof loginSchema>;
 
+type GoogleCredentialResponse = { credential: string };
+type GoogleAccounts = { id: { initialize: (options: { client_id: string; callback: (response: GoogleCredentialResponse) => void }) => void; renderButton: (element: HTMLElement, options: { theme: string; size: string; width: number }) => void } };
+
+declare global {
+  interface Window { google?: { accounts: GoogleAccounts } }
+}
+
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+
 export const LoginPage = () => {
-  const [step, setStep] = useState<'login' | 'verify'>('login');
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const googleButton = useRef<HTMLDivElement>(null);
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(loginSchema) });
   const navigate = useNavigate();
+  const setCurrentUser = useSetCurrentUser();
 
-  const onLoginSubmit = handleSubmit(async (values) => {
+  const finishGoogleLogin = async (credential: string) => {
     setLoading(true);
     try {
-      const response = await authApi.login({ email: values.email, password: values.password });
-      if ('token' in response) {
-        tokenStore.set(response.token);
-        toast.success('Đăng nhập thành công.');
-        navigate('/');
+      const response = await authApi.googleLogin(credential);
+      if ('needsRegistration' in response) {
+        navigate('/register', { state: { googleRegistration: response } });
         return;
       }
-      setEmail(values.email);
-      setStep('verify');
-      toast.success('Mã OTP đã được gửi đến email của bạn.');
-    } catch (error) {
-      const body = getApiErrorBody(error);
-      if (body?.requiresOtp) {
-        setEmail(body.email ?? values.email);
-        setStep('verify');
-        toast.info('Yêu cầu OTP. Vui lòng kiểm tra email.');
-      } else {
-        toast.error(body?.message ?? 'Đã có lỗi xảy ra');
-      }
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  const onVerifySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) return;
-    setLoading(true);
-    try {
-      const response = await authApi.verifyLoginOtp(email, otp);
-      tokenStore.set(response.token);
+      setCurrentUser(response.user);
       toast.success('Đăng nhập thành công.');
-      navigate('/');
+      
+      // Redirect dựa theo role
+      switch (response.user.role) {
+        case 'admin':
+          navigate('/admin/accounts');
+          break;
+        case 'referee':
+          navigate('/referee/dashboard');
+          break;
+        case 'editor':
+          navigate('/editor/recordings');
+          break;
+        case 'teamManager':
+          navigate('/team/dashboard');
+          break;
+        default:
+          navigate('/');
+      }
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Mã OTP không hợp lệ'));
-      setOtp('');
+      toast.error(getApiErrorMessage(error, 'Không thể đăng nhập bằng Google'));
     } finally {
       setLoading(false);
     }
   };
 
-  if (step === 'verify') {
-    return (
-      <>
-        <div className="auth-heading">
-          <h2 id="auth-title">Xác minh OTP</h2>
-          <p>Nhập mã 6 chữ số đã gửi đến <strong>{email}</strong></p>
-        </div>
-        <form className="auth-form" onSubmit={onVerifySubmit}>
-          <OtpInput value={otp} onChange={setOtp} />
-          <button className="submit-button" type="submit" disabled={otp.length !== 6 || loading}>
-            {loading ? 'Đang xác minh...' : 'Xác minh và đăng nhập'} <LockKeyhole />
-          </button>
-          <button className="forgot-link" type="button" onClick={() => { setStep('login'); setOtp(''); }}>
-            Quay lại đăng nhập
-          </button>
-        </form>
-      </>
-    );
-  }
+  useEffect(() => {
+    if (!googleClientId || !googleButton.current) return;
+    const render = () => {
+      if (!window.google || !googleButton.current) return;
+      window.google.accounts.id.initialize({ client_id: googleClientId, callback: (response) => void finishGoogleLogin(response.credential) });
+      window.google.accounts.id.renderButton(googleButton.current, { theme: 'outline', size: 'large', width: 280 });
+    };
+    const existing = document.querySelector<HTMLScriptElement>('script[data-google-identity]');
+    if (existing) {
+      existing.addEventListener('load', render, { once: true });
+      if (window.google) render();
+      return () => existing.removeEventListener('load', render);
+    }
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.dataset.googleIdentity = 'true';
+    script.addEventListener('load', render, { once: true });
+    document.head.appendChild(script);
+    return () => script.removeEventListener('load', render);
+  }, []);
+
+  const onLoginSubmit = handleSubmit(async (values) => {
+    setLoading(true);
+    try {
+      const { user } = await authApi.login(values);
+      setCurrentUser(user);
+      toast.success('Đăng nhập thành công.');
+      
+      // Redirect dựa theo role
+      switch (user.role) {
+        case 'admin':
+          navigate('/admin/accounts');
+          break;
+        case 'referee':
+          navigate('/referee/dashboard');
+          break;
+        case 'editor':
+          navigate('/editor/recordings');
+          break;
+        case 'teamManager':
+          navigate('/team/dashboard');
+          break;
+        default:
+          navigate('/');
+      }
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Đã có lỗi xảy ra'));
+    } finally {
+      setLoading(false);
+    }
+  });
 
   return (
     <>
@@ -98,39 +129,20 @@ export const LoginPage = () => {
       </div>
       <form className="auth-form" onSubmit={onLoginSubmit}>
         <label htmlFor="email">Email</label>
-        <div className="input-wrap">
-          <Mail />
-          <input id="email" type="email" placeholder="ten.nam.vu@example.com" autoComplete="email" {...register('email')} />
-        </div>
+        <div className="input-wrap"><Mail /><input id="email" type="email" placeholder="ten.nam.vu@example.com" autoComplete="email" {...register('email')} /></div>
         {errors.email && <p className="text-red-400 text-[10px] m-0">{errors.email.message}</p>}
-
         <label htmlFor="password">Mật khẩu</label>
         <div className="input-wrap">
-          <KeyRound />
-          <input id="password" type={showPassword ? 'text' : 'password'} placeholder="Mật khẩu của bạn" autoComplete="current-password" {...register('password')} />
-          <button className="password-toggle" type="button" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>
-            {showPassword ? <EyeOff /> : <Eye />}
-          </button>
+          <KeyRound /><input id="password" type={showPassword ? 'text' : 'password'} placeholder="Mật khẩu của bạn" autoComplete="current-password" {...register('password')} />
+          <button className="password-toggle" type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>{showPassword ? <EyeOff /> : <Eye />}</button>
         </div>
         {errors.password && <p className="text-red-400 text-[10px] m-0">{errors.password.message}</p>}
-
         <button className="forgot-link" type="button" onClick={() => navigate('/forgot-password')}>Quên mật khẩu?</button>
-
-        <button className="submit-button" type="submit" disabled={loading}>
-          {loading ? 'Đang đăng nhập...' : 'Đăng nhập'} <LockKeyhole />
-        </button>
+        <button className="submit-button" type="submit" disabled={loading}>{loading ? 'Đang đăng nhập...' : 'Đăng nhập'} <LockKeyhole /></button>
       </form>
-
       <div className="divider"><span>Đăng nhập nhanh với</span></div>
-      <div className="social-row">
-        <button type="button" className="social-button" onClick={() => toast.info('Tính năng đang phát triển')}>
-          <span className="google-g">G</span> Google
-        </button>
-        <button type="button" className="social-button" onClick={() => toast.info('Tính năng đang phát triển')}>
-          <GitBranch /> GitHub
-        </button>
-      </div>
-      <p className="terms">Bằng việc tiếp tục, bạn đồng ý với <button type="button">Điều khoản sử dụng</button> và <button type="button">Chính sách bảo mật</button>.</p>
+      {googleClientId ? <div ref={googleButton} className="flex justify-center" /> : <p className="text-center text-xs text-muted-foreground">Google sign-in chưa được cấu hình.</p>}
+      <div className="social-row"><button type="button" className="social-button" onClick={() => toast.info('Tính năng đang phát triển')}><GitBranch /> GitHub</button></div>
     </>
   );
 };

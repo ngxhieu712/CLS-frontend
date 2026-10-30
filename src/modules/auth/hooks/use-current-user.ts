@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/auth.api';
-import { tokenStore } from '../store/token.store';
 import type { CurrentUser } from '../types/auth.types';
 
 /** Cache key of the signed-in user. Invalidate it after any change to the user. */
@@ -13,7 +12,7 @@ export const useCurrentUser = () =>
   useQuery({
     queryKey: currentUserKey,
     queryFn: authApi.getMe,
-    enabled: Boolean(tokenStore.get()),
+    retry: false,
   });
 
 /** Replaces the cached user with a fresh copy returned by a mutation. */
@@ -27,9 +26,12 @@ export const useLogout = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  return useCallback(() => {
-    tokenStore.clear();
-    queryClient.clear();
-    navigate('/login', { replace: true });
+  return useCallback(async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      queryClient.clear();
+      navigate('/login', { replace: true });
+    }
   }, [queryClient, navigate]);
 };

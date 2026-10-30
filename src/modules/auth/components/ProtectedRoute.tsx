@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { LoadingState } from '@/shared/components/loading-state';
 import { useCurrentUser } from '../hooks/use-current-user';
-import { tokenStore } from '../store/token.store';
 import type { UserRole } from '../types/auth.types';
 
 interface ProtectedRouteProps {
@@ -38,12 +37,8 @@ const RoleGate = ({ children, roles }: Required<ProtectedRouteProps>) => {
 };
 
 export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
-  const token = tokenStore.get();
   const location = useLocation();
 
-  if (!token) return <Navigate to="/login" replace />;
-
-  // Nếu không truyền roles thì cần check status vẫn qua RoleGate-lite
   if (roles) return <RoleGate roles={roles}>{children}</RoleGate>;
 
   return <StatusGate location={location}>{children}</StatusGate>;
