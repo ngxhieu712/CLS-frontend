@@ -92,7 +92,7 @@ export const PlayoffSetupPage = () => {
                   {rows.map((seed) => (
                     <div key={seed.teamId} className="flex items-center gap-2 rounded-lg border border-border bg-background/70 px-2.5 py-2">
                       <span className="w-6 text-xs font-semibold tabular-nums text-primary">#{seed.rank}</span>
-                      <TeamAvatar name={seed.teamName} tag={seed.teamTag} size="sm" />
+                      <TeamAvatar name={seed.teamName} tag={seed.teamTag} logoUrl={seed.logoUrl} size="sm" />
                       <span className="min-w-0 flex-1 truncate text-xs font-medium">{seed.teamName}</span>
                       <CheckCircle2 className="size-4 text-emerald-500" />
                     </div>
@@ -159,9 +159,23 @@ function MatchSlot({ label, teams, champion = false }: { label: string; teams: (
       <p className="mb-2 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">{champion && <Trophy className="size-3.5 text-amber-500" />}{label}</p>
       {[0, 1].map((index) => {
         const team = teams[index];
-        return <div key={index} className={`flex items-center gap-2 border-t border-border py-2 ${index === 0 ? '' : ''}`}>
-          {team ? <><TeamAvatar name={team.teamName} tag={team.teamTag} size="sm" /><span className="min-w-0 flex-1 truncate text-xs font-medium">{team.teamName}</span><span className="text-[10px] text-muted-foreground">{team.groupName} #{team.rank}</span></> : <><span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">?</span><span className="flex-1 text-xs text-muted-foreground">{index === 0 ? 'Thắng trận trước' : 'Chờ đối thủ'}</span><ArrowRight className="size-3.5 text-muted-foreground" /></>}
-        </div>;
+        return (
+          <div key={index} className="flex items-center gap-2 border-t border-border py-2">
+            {team ? (
+              <>
+                <TeamAvatar name={team.teamName} tag={team.teamTag} logoUrl={team.logoUrl} size="sm" />
+                <span className="min-w-0 flex-1 truncate text-xs font-medium">{team.teamName}</span>
+                <span className="text-[10px] text-muted-foreground">{team.groupName} #{team.rank}</span>
+              </>
+            ) : (
+              <>
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">?</span>
+                <span className="flex-1 text-xs text-muted-foreground">{index === 0 ? 'Thắng trận trước' : 'Chờ đối thủ'}</span>
+                <ArrowRight className="size-3.5 text-muted-foreground" />
+              </>
+            )}
+          </div>
+        );
       })}
     </div>
   );

@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import { MatchStatusBadge } from '@/shared/components/status-badge';
 import { StatCard } from '@/shared/components/stat-card';
+import { TeamAvatar } from '@/shared/components/team-avatar';
 import { MOCK_APPLICATIONS, MOCK_MATCHES, MOCK_TEAMS, MOCK_TOURNAMENT } from '@/shared/lib/mock-data';
 
 const pendingConfirm = MOCK_MATCHES.filter(({ status }) => status === 'pending_confirm');
@@ -64,15 +65,22 @@ export const AdminDashboardPage = () => (
         </div>
         <div className="divide-y divide-border">
           {pendingConfirm.slice(0, 3).map((match) => (
-            <div key={match._id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">
-                  {match.teamA?.name ?? 'TBD'} <span className="mx-1.5 font-bold tabular-nums text-primary">{match.scoreA} : {match.scoreB}</span>
-                  {match.teamB?.name ?? 'TBD'}
-                </p>
+            <div key={match._id} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex-1">
+              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <TeamAvatar name={match.teamA?.name ?? 'Chưa xác định'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="sm" />
+                  <span className="min-w-0 truncate text-sm font-medium">{match.teamA?.name ?? 'TBD'}</span>
+                </div>
+                <span className="shrink-0 text-sm font-bold tabular-nums text-primary">{match.scoreA} : {match.scoreB}</span>
+                <div className="flex min-w-0 items-center justify-end gap-2">
+                  <span className="min-w-0 truncate text-right text-sm font-medium">{match.teamB?.name ?? 'TBD'}</span>
+                  <TeamAvatar name={match.teamB?.name ?? 'Chưa xác định'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="sm" />
+                </div>
+              </div>
                 <p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <MatchStatusBadge status={match.status} />
                 <Link
                   to={`/admin/schedule?review=${match._id}`}
@@ -115,11 +123,14 @@ export const AdminDashboardPage = () => (
         <div className="divide-y divide-border">
           {pendingTeams.slice(0, 3).map((application) => (
             <div key={application._id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <TeamAvatar name={application.teamName} tag={application.teamTag} size="sm" />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
                   {application.teamName} <span className="ml-1 text-xs text-muted-foreground">[{application.teamTag}]</span>
-                </p>
-                <p className="mt-1 truncate text-xs text-muted-foreground">{application.managerName} · {application.managerEmail}</p>
+                  </p>
+                  <p className="mt-1 truncate text-xs text-muted-foreground">{application.managerName} · {application.managerEmail}</p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Link
@@ -158,8 +169,14 @@ export const AdminDashboardPage = () => (
         <div className="divide-y divide-border">
           {MOCK_MATCHES.filter(({ status }) => status === 'ongoing' || status === 'scheduled').slice(0, 5).map((match) => (
             <div key={match._id} className="flex items-center justify-between gap-3 px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{match.teamA?.name ?? 'TBD'} <span className="mx-1 text-muted-foreground">vs</span> {match.teamB?.name ?? 'TBD'}</p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <TeamAvatar name={match.teamA?.name ?? 'Chưa xác định'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="xs" />
+                  <span className="max-w-28 truncate text-sm font-medium">{match.teamA?.name ?? 'TBD'}</span>
+                  <span className="text-muted-foreground">vs</span>
+                  <span className="max-w-28 truncate text-sm font-medium">{match.teamB?.name ?? 'TBD'}</span>
+                  <TeamAvatar name={match.teamB?.name ?? 'Chưa xác định'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="xs" />
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p>
               </div>
               <div className="flex shrink-0 items-center gap-2">

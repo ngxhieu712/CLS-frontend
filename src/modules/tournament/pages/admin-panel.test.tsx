@@ -34,6 +34,7 @@ describe('tournament admin panel', () => {
 
   it('creates a staff account and allows locking it', () => {
     renderWithProviders(<TeamManagementPage />);
+    expect(screen.getByRole('img', { name: 'Vortex' })).toHaveAttribute('src', '/logos/vortex.jpg');
     fireEvent.click(screen.getByRole('tab', { name: /Nhân sự/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Thêm nhân sự' }));
     fireEvent.change(screen.getByPlaceholderText('ten@gmail.com'), { target: { value: 'new.referee@gmail.com' } });

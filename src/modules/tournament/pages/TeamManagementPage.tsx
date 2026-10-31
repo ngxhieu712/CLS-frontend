@@ -189,7 +189,7 @@ function TeamRows({ team, managerEmail, isLocked, expanded, onToggleDetails, onT
     <>
       <tr className="hover:bg-muted/30">
         <td className="px-4 py-3">
-          <div className="flex items-center gap-3"><TeamAvatar name={team.name} tag={team.tag} size="sm" /><div><p className="font-semibold">{team.name}</p><p className="text-xs text-muted-foreground">[{team.tag}]</p></div></div>
+          <div className="flex items-center gap-3"><TeamAvatar name={team.name} tag={team.tag} logoUrl={team.logoUrl} size="sm" /><div><p className="font-semibold">{team.name}</p><p className="text-xs text-muted-foreground">[{team.tag}]</p></div></div>
         </td>
         <td className="px-4 py-3 text-muted-foreground">{team.groupId ? `Bảng ${team.groupId.slice(-1).toUpperCase()}` : 'Chưa chia bảng'}</td>
         <td className="px-4 py-3 text-muted-foreground">{managerEmail}</td>

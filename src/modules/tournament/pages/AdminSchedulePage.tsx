@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { PageHeader } from '@/shared/components/page-header';
 import { MatchStatusBadge, RecordingStatusBadge } from '@/shared/components/status-badge';
+import { TeamAvatar } from '@/shared/components/team-avatar';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { MOCK_MATCHES, MOCK_TEAMS } from '@/shared/lib/mock-data';
@@ -282,7 +283,16 @@ export const AdminSchedulePage = () => {
                   const mainName = REFEREES.find(({ id }) => id === assignment?.main)?.name ?? match.refereeName ?? 'Chưa phân công';
                   return (
                     <tr key={match._id} className="align-top hover:bg-muted/20">
-                      <td className="px-4 py-3.5"><p className="font-medium">{match.teamA?.name ?? 'Chờ xác định'} <span className="mx-1.5 text-primary">{match.scoreA !== undefined ? `${match.scoreA} : ${match.scoreB}` : 'vs'}</span> {match.teamB?.name ?? 'Chờ xác định'}</p><p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p></td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <TeamAvatar name={match.teamA?.name ?? 'Chờ xác định'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="xs" />
+                          <span className="max-w-32 truncate font-medium">{match.teamA?.name ?? 'Chờ xác định'}</span>
+                          <span className="shrink-0 text-primary">{match.scoreA !== undefined ? `${match.scoreA} : ${match.scoreB}` : 'vs'}</span>
+                          <span className="max-w-32 truncate font-medium">{match.teamB?.name ?? 'Chờ xác định'}</span>
+                          <TeamAvatar name={match.teamB?.name ?? 'Chờ xác định'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="xs" />
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p>
+                      </td>
                       <td className="px-4 py-3.5 text-xs tabular-nums text-muted-foreground">{new Date(match.scheduledAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
                       <td className="px-4 py-3.5"><p className="text-xs">{mainName}</p><p className="mt-1 text-[11px] text-muted-foreground">{assignment?.assistants.length ?? 0} trợ lý</p></td>
                       <td className="px-4 py-3.5"><MatchStatusBadge status={match.status} /></td>
@@ -348,7 +358,20 @@ function ResultReview({ match, reason, scoreA, scoreB, onReasonChange, onScoreAC
 
   return (
     <div className="space-y-4 border-t border-border bg-muted/20 p-4">
-      <div className="flex items-start gap-2 text-sm"><AlertTriangle className={`mt-0.5 size-4 ${submitted ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`} /><div><p className="font-semibold">{submitted ? 'Kết quả do trọng tài gửi' : 'Kết quả đã xác nhận'}</p><p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.teamA?.name} {match.scoreA} : {match.scoreB} {match.teamB?.name}</p></div></div>
+      <div className="flex items-start gap-2 text-sm">
+        <AlertTriangle className={`mt-0.5 size-4 ${submitted ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`} />
+        <div>
+          <p className="font-semibold">{submitted ? 'Kết quả do trọng tài gửi' : 'Kết quả đã xác nhận'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{match.round}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <TeamAvatar name={match.teamA?.name ?? 'Chờ xác định'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="xs" />
+            <span className="text-sm font-medium">{match.teamA?.name}</span>
+            <span className="font-semibold tabular-nums text-primary">{match.scoreA} : {match.scoreB}</span>
+            <span className="text-sm font-medium">{match.teamB?.name}</span>
+            <TeamAvatar name={match.teamB?.name ?? 'Chờ xác định'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="xs" />
+          </div>
+        </div>
+      </div>
       {match.games.length > 0 && <div className="flex flex-wrap gap-2">{match.games.map((game) => <span key={game._id} className="rounded-md border border-border bg-card px-3 py-1.5 text-xs">Ván {game.gameNumber}: {game.winnerId === match.teamA?._id ? match.teamA?.name : match.teamB?.name} thắng</span>)}</div>}
       {submitted ? (
         <div className="space-y-3">
@@ -386,13 +409,13 @@ function SubmitResultPanel({ match, scoreA, scoreB, onScoreAChange, onScoreBChan
   return (
     <div className="flex flex-col gap-3 border-t border-border bg-muted/20 p-4 sm:flex-row sm:items-end">
       <div className="min-w-0 flex-1"><p className="text-sm font-semibold">Nhập kết quả trận</p><p className="mt-1 text-xs text-muted-foreground">Tỉ số ván thắng theo thể thức {match.format}.</p></div>
-      <label className="space-y-1 text-xs text-muted-foreground"><span>{match.teamA?.name ?? 'Đội A'}</span><Input aria-label={`Tỉ số ${match.teamA?.name ?? 'đội A'}`} type="number" min={0} value={scoreA} onChange={(event) => onScoreAChange(event.target.value)} /></label>
-      <label className="space-y-1 text-xs text-muted-foreground"><span>{match.teamB?.name ?? 'Đội B'}</span><Input aria-label={`Tỉ số ${match.teamB?.name ?? 'đội B'}`} type="number" min={0} value={scoreB} onChange={(event) => onScoreBChange(event.target.value)} /></label>
+      <label className="space-y-1 text-xs text-muted-foreground"><span className="flex items-center gap-2"><TeamAvatar name={match.teamA?.name ?? 'Đội A'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="xs" />{match.teamA?.name ?? 'Đội A'}</span><Input aria-label={`Tỉ số ${match.teamA?.name ?? 'đội A'}`} type="number" min={0} value={scoreA} onChange={(event) => onScoreAChange(event.target.value)} /></label>
+      <label className="space-y-1 text-xs text-muted-foreground"><span className="flex items-center gap-2"><TeamAvatar name={match.teamB?.name ?? 'Đội B'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="xs" />{match.teamB?.name ?? 'Đội B'}</span><Input aria-label={`Tỉ số ${match.teamB?.name ?? 'đội B'}`} type="number" min={0} value={scoreB} onChange={(event) => onScoreBChange(event.target.value)} /></label>
       <Button type="button" onClick={() => onSubmit(match)}><Check className="size-4" /> Gửi xác nhận</Button>
     </div>
   );
 }
 
 function RecordingRow({ match }: { match: Match }) {
-  return <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div><p className="text-sm font-medium">{match.teamA?.name ?? 'TBD'} vs {match.teamB?.name ?? 'TBD'}</p><p className="mt-1 text-xs text-muted-foreground">{match.round}</p></div><div className="flex items-center gap-2"><RecordingStatusBadge status={match.recordingStatus ?? 'none'} />{match.highlightUrl && <a className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input px-3 text-xs hover:bg-muted" href={match.highlightUrl} target="_blank" rel="noreferrer"><Film className="size-3.5" /> Highlight</a>}{match.youtubeUrl && <a className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input px-3 text-xs hover:bg-muted" href={match.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}</div></div>;
+  return <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div><div className="flex flex-wrap items-center gap-2"><TeamAvatar name={match.teamA?.name ?? 'Chưa xác định'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="xs" /><span className="text-sm font-medium">{match.teamA?.name ?? 'TBD'}</span><span className="text-muted-foreground">vs</span><span className="text-sm font-medium">{match.teamB?.name ?? 'TBD'}</span><TeamAvatar name={match.teamB?.name ?? 'Chưa xác định'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="xs" /></div><p className="mt-1 text-xs text-muted-foreground">{match.round}</p></div><div className="flex items-center gap-2"><RecordingStatusBadge status={match.recordingStatus ?? 'none'} />{match.highlightUrl && <a className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input px-3 text-xs hover:bg-muted" href={match.highlightUrl} target="_blank" rel="noreferrer"><Film className="size-3.5" /> Highlight</a>}{match.youtubeUrl && <a className="inline-flex h-9 items-center gap-1.5 rounded-md border border-input px-3 text-xs hover:bg-muted" href={match.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}</div></div>;
 }

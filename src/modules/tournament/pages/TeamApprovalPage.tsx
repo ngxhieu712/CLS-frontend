@@ -6,6 +6,7 @@ import type { TeamProfileStatus } from '@/modules/admin/types/admin.types';
 import { LoadingState } from '@/shared/components/loading-state';
 import { ErrorState } from '@/shared/components/error-state';
 import { PageHeader } from '@/shared/components/page-header';
+import { TeamAvatar } from '@/shared/components/team-avatar';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 
@@ -119,9 +120,7 @@ export const TeamApprovalPage = () => {
                   aria-expanded={isOpen}
                   onClick={() => setExpanded(isOpen ? null : team._id)}
                 >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-sm font-bold text-primary">
-                    {team.tag.slice(0, 3)}
-                  </div>
+                  <TeamAvatar name={team.name} tag={team.tag} logoUrl={team.logo} size="sm" />
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="truncate text-sm font-semibold">{team.name}</span>

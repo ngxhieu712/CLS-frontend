@@ -107,7 +107,7 @@ export const DrawPage = () => {
                     onDragStart={() => handleDragStart(t._id)}
                     className={`flex items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2.5 ${!confirmed ? 'cursor-grab active:cursor-grabbing' : ''} hover:bg-muted/60 transition-colors`}
                   >
-                    <TeamAvatar name={t.name} tag={t.tag} size="sm" />
+                    <TeamAvatar name={t.name} tag={t.tag} logoUrl={t.logoUrl} size="sm" />
                     <span className="text-sm font-medium text-white">{t.name}</span>
                   </div>
                 ))}
