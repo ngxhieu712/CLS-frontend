@@ -49,20 +49,31 @@ export const AdminLayout = ({ navItems }: AdminLayoutProps) => {
           onClick={() => setMenuOpen(false)}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
-              isActive ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              'group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-150',
+              isActive
+                ? 'bg-primary/15 text-primary font-medium'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground hover:translate-x-0.5 hover:shadow-sm',
             )
           }
         >
-          <item.icon className="size-4" />
-          {item.label}
+          {({ isActive }) => (
+            <>
+              {/* Left accent bar */}
+              <span className={cn(
+                'absolute left-0 top-1/2 -translate-y-1/2 w-0.5 rounded-r transition-all duration-150',
+                isActive ? 'h-5 bg-primary' : 'h-0 group-hover:h-4 bg-primary/50',
+              )} />
+              <item.icon className={cn('size-4 transition-transform duration-150', !isActive && 'group-hover:scale-110')} />
+              {item.label}
+            </>
+          )}
         </NavLink>
       ))}
       <Link
         to="/"
-        className="mt-auto flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="mt-auto flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-150 hover:bg-muted hover:text-foreground hover:translate-x-0.5 group"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="size-4 transition-transform duration-150 group-hover:-translate-x-0.5" />
         Back to app
       </Link>
     </nav>
