@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Menu, Shield, UserCog, Users } from 'lucide-react';
+import { Menu, Shield, UserCog } from 'lucide-react';
 import type { AppModule } from '@/app/module.types';
 
 const AdminNavbarPage = lazy(() => import('./pages/AdminNavbarPage').then(({ AdminNavbarPage: Component }) => ({ default: Component })));
@@ -15,9 +15,9 @@ export const adminModule: AppModule = {
     { path: '/admin/users', Component: AdminUsersPage },
     { path: '/admin/navbar', Component: AdminNavbarPage },
   ],
+  // `/admin/users` is a placeholder page (its hooks are not implemented yet), so it has no sidebar link.
   adminNavItems: [
-    { to: '/admin/accounts', label: 'Tài khoản', icon: UserCog },
-    { to: '/admin/users', label: 'Người dùng (Ref)', icon: Users },
-    { to: '/admin/navbar', label: 'Thanh điều hướng', icon: Menu },
+    { to: '/admin/accounts', label: 'Tài khoản nội bộ', icon: UserCog, group: 'Hệ thống' },
+    { to: '/admin/navbar', label: 'Thanh điều hướng', icon: Menu, group: 'Hệ thống' },
   ],
 };

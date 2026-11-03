@@ -15,6 +15,8 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   roles?: UserRole[];
+  /** Admin sidebar only: heading of the section the link is listed under. */
+  group?: string;
 }
 
 /** A route in the public (unauthenticated) area. */
