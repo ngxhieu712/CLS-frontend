@@ -7,26 +7,22 @@ import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
 
-interface SecuritySettingsProps {
-  user: CurrentUser;
-}
-
 /** Lets the user turn the emailed login code (second login step) on or off. */
-export const SecuritySettings = ({ user: _user }: SecuritySettingsProps) => { // user renamed to _user (unused)
+export const SecuritySettings = () => {
   const queryClient = useQueryClient();
 
   // TODO: loginOtpEnabled not in BE model - feature disabled (variable removed)
 
   // Optimistic update: the switch flips immediately and flips back if the request fails.
   const toggleLoginOtp = useMutation({
-    mutationFn: (_loginOtpEnabled: boolean) => profileApi.updateSecurity({ loginOtpEnabled: false }),
+    mutationFn: () => profileApi.updateSecurity({ loginOtpEnabled: false }),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: currentUserKey });
       const previous = queryClient.getQueryData<CurrentUser>(currentUserKey);
       if (previous) queryClient.setQueryData(currentUserKey, previous); // No update since field doesn't exist
       return { previous };
     },
-    onError: (error, _loginOtpEnabled, context) => {
+    onError: (error, _variable, context) => {
       if (context?.previous) queryClient.setQueryData(currentUserKey, context.previous);
       toast.error(getApiErrorMessage(error, 'Could not update the setting.'));
     },
@@ -48,7 +44,7 @@ export const SecuritySettings = ({ user: _user }: SecuritySettingsProps) => { //
         id="login-otp"
         checked={false}
         disabled={true}
-        onCheckedChange={(checked) => toggleLoginOtp.mutate(checked)}
+        onCheckedChange={() => toggleLoginOtp.mutate()}
       />
     </div>
   );
