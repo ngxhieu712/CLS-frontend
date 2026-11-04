@@ -1,4 +1,4 @@
-import { Lock, LockOpen, Plus, UserPlus } from 'lucide-react';
+import { Flag, Lock, LockOpen, PenLine, Plus, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import { useAdminAccounts, useUpdateAccountStatus } from '../hooks/use-admin';
 import type { AdminAccount } from '../types/admin.types';
@@ -9,6 +9,8 @@ import { LoadingState } from '@/shared/components/loading-state';
 import { ErrorState } from '@/shared/components/error-state';
 import { CreateAccountDialog } from '../components/CreateAccountDialog';
 import { ConfirmDialog } from '@/shared/components/confirm-dialog';
+import { StatCard } from '@/shared/components/stat-card';
+import { cn } from '@/shared/lib/utils';
 
 /**
  * Admin page để tạo và quản lý tài khoản trọng tài và biên tập viên.
@@ -37,6 +39,9 @@ export const AdminAccountsPage = () => {
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState />;
 
+  const refereeCount = accounts.filter(({ role }) => role === 'referee').length;
+  const lockedCount = accounts.filter(({ status }) => status === 'locked').length;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -50,6 +55,12 @@ export const AdminAccountsPage = () => {
         }
       />
 
+      <section aria-label="Thống kê tài khoản" className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Trọng tài" value={refereeCount} icon={Flag} tone="emerald" />
+        <StatCard label="Biên tập viên" value={accounts.length - refereeCount} icon={PenLine} tone="blue" />
+        <StatCard label="Đã khóa" value={lockedCount} icon={Lock} tone="rose" />
+      </section>
+
       {accounts.length === 0 ? (
         <EmptyState
           icon={UserPlus}
@@ -57,7 +68,7 @@ export const AdminAccountsPage = () => {
           description="Tạo tài khoản trọng tài hoặc biên tập viên để bắt đầu."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-sm">
           {accounts.map((account) => {
             const isLocked = account.status === 'locked';
             const roleLabel = account.role === 'referee' ? 'Trọng tài' : 'Biên tập viên';
@@ -65,10 +76,13 @@ export const AdminAccountsPage = () => {
             return (
               <article
                 key={account._id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-4"
+                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/40"
               >
-                <div className="flex min-w-0 flex-1 items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-sm font-bold text-primary">
+                <div className={cn('flex min-w-0 flex-1 items-center gap-3', isLocked && 'opacity-60')}>
+                  <div className={cn(
+                    'flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold',
+                    account.role === 'referee' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
+                  )}>
                     {account.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">

@@ -40,15 +40,15 @@ export const AdminDashboardPage = () => (
       </Link>
     </header>
 
-    <section aria-label="Chỉ số giải đấu" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard label="Đội đã duyệt" value={approvedTeams} icon={Users} hint="Đang tham gia vòng bảng" />
-      <StatCard label="Trận đang diễn ra" value={liveMatches.length} icon={Swords} hint={`${completedMatches} trận đã xác nhận`} />
-      <StatCard label="Hồ sơ chờ duyệt" value={pendingTeams.length} icon={ClipboardList} hint="Cần kiểm tra thông tin đội" />
-      <StatCard label="Kết quả cần xác nhận" value={pendingConfirm.length} icon={ClipboardCheck} hint="Trọng tài đã gửi kết quả" />
+    <section aria-label="Chỉ số giải đấu" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <StatCard label="Đội đã duyệt" value={approvedTeams} icon={Users} hint="Đang tham gia vòng bảng" tone="emerald" />
+      <StatCard label="Trận đang diễn ra" value={liveMatches.length} icon={Swords} hint={`${completedMatches} trận đã xác nhận`} tone="rose" />
+      <StatCard label="Hồ sơ chờ duyệt" value={pendingTeams.length} icon={ClipboardList} hint="Cần kiểm tra thông tin đội" tone="blue" />
+      <StatCard label="Kết quả cần xác nhận" value={pendingConfirm.length} icon={ClipboardCheck} hint="Trọng tài đã gửi kết quả" tone="amber" />
     </section>
 
     <section className="grid gap-5 xl:grid-cols-2" aria-label="Hàng đợi xử lý nhanh">
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
           <div className="flex items-center gap-2.5">
             <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
@@ -65,22 +65,20 @@ export const AdminDashboardPage = () => (
         </div>
         <div className="divide-y divide-border">
           {pendingConfirm.slice(0, 3).map((match) => (
-            <div key={match._id} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 flex-1">
+            <div key={match._id} className="space-y-3 px-4 py-3.5">
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <TeamAvatar name={match.teamA?.name ?? 'Chưa xác định'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="sm" />
                   <span className="min-w-0 truncate text-sm font-medium">{match.teamA?.name ?? 'TBD'}</span>
                 </div>
-                <span className="shrink-0 text-sm font-bold tabular-nums text-primary">{match.scoreA} : {match.scoreB}</span>
+                <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-sm font-bold tabular-nums text-primary">{match.scoreA} : {match.scoreB}</span>
                 <div className="flex min-w-0 items-center justify-end gap-2">
                   <span className="min-w-0 truncate text-right text-sm font-medium">{match.teamB?.name ?? 'TBD'}</span>
                   <TeamAvatar name={match.teamB?.name ?? 'Chưa xác định'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="sm" />
                 </div>
               </div>
-                <p className="mt-1 text-xs text-muted-foreground">{match.round} · {match.format}</p>
-              </div>
               <div className="flex flex-wrap items-center gap-2">
+                <p className="mr-auto text-xs text-muted-foreground">{match.round} · {match.format}</p>
                 <MatchStatusBadge status={match.status} />
                 <Link
                   to={`/admin/schedule?review=${match._id}`}
@@ -105,7 +103,7 @@ export const AdminDashboardPage = () => (
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
           <div className="flex items-center gap-2.5">
             <div className="flex size-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
@@ -158,7 +156,7 @@ export const AdminDashboardPage = () => (
     </section>
 
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
           <div>
             <h2 className="text-sm font-semibold">Diễn biến trận đấu</h2>
@@ -191,7 +189,7 @@ export const AdminDashboardPage = () => (
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
         <div className="mb-4">
           <h2 className="text-sm font-semibold">Lối tắt vận hành</h2>
           <p className="mt-1 text-xs text-muted-foreground">Đi thẳng đến công việc thường dùng</p>

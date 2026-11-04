@@ -30,18 +30,18 @@ describe('AdminLayout', () => {
     renderLayout('/admin');
     expect(screen.getAllByRole('navigation', { name: 'Admin' })).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mở menu' }));
     expect(screen.getAllByRole('navigation', { name: 'Admin' })).toHaveLength(2);
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Close menu' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Đóng menu' })[0]);
     expect(screen.getAllByRole('navigation', { name: 'Admin' })).toHaveLength(1);
   });
 
   it('links back to the app and logs out', async () => {
     renderLayout('/admin');
-    expect(screen.getAllByRole('link', { name: 'Back to app' })[0]).toHaveAttribute('href', '/');
+    expect(screen.getAllByRole('link', { name: 'Về trang chính' })[0]).toHaveAttribute('href', '/');
 
-    fireEvent.click(screen.getByRole('button', { name: /logout/i }));
+    fireEvent.click(screen.getByRole('button', { name: /đăng xuất/i }));
     expect(await screen.findByText('login page')).toBeInTheDocument();
   });
 });
