@@ -33,11 +33,11 @@
 
 /* Light theme (default) */
 :root {
-  --background: hsl(0 0% 100%);
+  --background: hsl(220 20% 97%);
   --foreground: hsl(222 47% 11%);
   --card: hsl(0 0% 100%);
   --card-foreground: hsl(222 47% 11%);
-  --primary: hsl(38 92% 50%);
+  --primary: hsl(35 92% 47%);
   --primary-foreground: hsl(0 0% 8%);
   --muted: hsl(210 40% 96%);
   --muted-foreground: hsl(215 16% 47%);
@@ -61,30 +61,31 @@
 
 /* Dark theme */
 .dark {
-  --background: hsl(220 20% 8%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(220 18% 11%);
-  --card-foreground: hsl(210 40% 98%);
-  --primary: hsl(38 92% 50%);
-  --primary-foreground: hsl(0 0% 8%);
-  --muted: hsl(220 14% 16%);
-  --muted-foreground: hsl(215 20% 65%);
-  --border: hsl(220 12% 22%);
-  --input: hsl(220 12% 22%);
-  --ring: hsl(38 92% 50%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --accent: hsl(220 14% 16%);
-  --accent-foreground: hsl(210 40% 98%);
-  --popover: hsl(220 18% 11%);
-  --popover-foreground: hsl(210 40% 98%);
-  --secondary: hsl(220 14% 16%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --sidebar: hsl(220 20% 6%);
-  --sidebar-foreground: hsl(210 40% 98%);
-  --sidebar-accent: hsl(220 14% 13%);
-  --sidebar-accent-foreground: hsl(210 40% 98%);
-  --sidebar-border: hsl(220 12% 18%);
+  /* Graphite + amber, matching the redesign mock-ups */
+  --background: hsl(222 29% 6%);
+  --foreground: hsl(216 33% 93%);
+  --card: hsl(222 26% 10%);
+  --card-foreground: hsl(216 33% 93%);
+  --primary: hsl(37 91% 55%);
+  --primary-foreground: hsl(36 68% 6%);
+  --muted: hsl(222 24% 13%);
+  --muted-foreground: hsl(218 14% 60%);
+  --border: hsl(219 24% 16%);
+  --input: hsl(219 22% 20%);
+  --ring: hsl(37 91% 55%);
+  --destructive: hsl(0 91% 71%);
+  --destructive-foreground: hsl(222 29% 6%);
+  --accent: hsl(222 24% 13%);
+  --accent-foreground: hsl(216 33% 93%);
+  --popover: hsl(222 26% 10%);
+  --popover-foreground: hsl(216 33% 93%);
+  --secondary: hsl(222 24% 13%);
+  --secondary-foreground: hsl(216 33% 93%);
+  --sidebar: hsl(222 27% 8.5%);
+  --sidebar-foreground: hsl(216 33% 93%);
+  --sidebar-accent: hsl(222 24% 13%);
+  --sidebar-accent-foreground: hsl(216 33% 93%);
+  --sidebar-border: hsl(219 24% 16%);
 }
 
 * {
@@ -97,7 +98,7 @@ body {
   color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: Inter, Arial, sans-serif;
+  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
 }
 
 /* ===== AUTH PAGE ANIMATIONS ===== */

@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Bell, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -8,6 +8,7 @@ import {
   PUBLIC_NAV_ITEMS,
 } from '@/modules/public/navbar-settings';
 
+/** Khu vực khán giả: luôn dùng giao diện tối, thanh điều hướng cố định ở trên. */
 export const PublicLayout = () => {
   const [navbarSettings, setNavbarSettings] = useState(getPublicNavbarSettings);
 
@@ -23,49 +24,24 @@ export const PublicLayout = () => {
 
   return (
     <div className="dark">
-      <div className="relative min-h-screen overflow-x-clip text-slate-100" style={{ background: 'var(--es-bg-deep)' }}>
-        {/* ── Ambient background ──────────────────────────────────── */}
-        <div className="pointer-events-none fixed left-0 top-0 -z-10 h-full w-full" aria-hidden="true">
-          <div className="absolute inset-0" style={{
-            background:
-              'radial-gradient(ellipse at 15% 30%, rgba(245,158,11,0.06) 0, transparent 50%),' +
-              'radial-gradient(ellipse at 85% 70%, rgba(34,211,238,0.04) 0, transparent 50%),' +
-              'linear-gradient(180deg, #0a0d1a 0%, #070a13 100%)',
-          }} />
-          {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-[0.025]" style={{
-            backgroundImage:
-              'linear-gradient(rgba(245,158,11,0.5) 1px,transparent 1px),' +
-              'linear-gradient(90deg,rgba(245,158,11,0.5) 1px,transparent 1px)',
-            backgroundSize: '48px 48px',
-            maskImage: 'linear-gradient(to bottom,transparent,black 10%,black 90%,transparent)',
-          }} />
-        </div>
+      <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
+        {/* Soft amber glow behind the header */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[520px]"
+          style={{ background: 'radial-gradient(ellipse 60% 100% at 50% 0%, rgba(245,165,36,0.07), transparent 70%)' }}
+        />
 
-        {/* ── Header ──────────────────────────────────────────────── */}
-        <header className="sticky top-0 z-50 border-b" style={{
-          background: 'rgba(7,10,19,0.92)',
-          borderColor: 'rgba(245,158,11,0.15)',
-          backdropFilter: 'blur(14px)',
-        }}>
-          <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-4">
-
-            {/* Logo */}
-            <Link to="/" className="mr-4 flex shrink-0 items-center gap-2.5">
-              <div className="flex size-8 items-center justify-center rounded-lg" style={{
-                background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.15))',
-                border: '1px solid rgba(245,158,11,0.4)',
-                boxShadow: '0 0 12px rgba(245,158,11,0.2)',
-              }}>
-                <Trophy className="size-4 text-amber-400" />
-              </div>
-              <span className="hidden text-sm font-extrabold tracking-widest text-white sm:inline">
-                CHAMPION <span className="text-amber-400">LEAGUE</span>
+        <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur-md">
+          <div className="mx-auto flex min-h-[68px] max-w-[1240px] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2 sm:px-6">
+            <Link to="/" className="flex shrink-0 items-center gap-2.5">
+              <span className="flex size-9 items-center justify-center rounded-[10px] bg-primary text-primary-foreground">
+                <Trophy className="size-5" />
               </span>
+              <span className="hidden text-sm font-black tracking-[0.06em] sm:inline">CHAMPION LEAGUE</span>
             </Link>
 
-            {/* Nav */}
-            <nav className="flex flex-1 items-center gap-0.5 overflow-x-auto" aria-label="Điều hướng chính">
+            <nav className="order-last flex w-full items-center gap-1 overflow-x-auto md:order-none md:w-auto md:flex-1" aria-label="Điều hướng chính">
               {navbarSettings.filter(({ visible }) => visible).map(({ id, label }) => {
                 const item = PUBLIC_NAV_ITEMS.find((navItem) => navItem.id === id);
                 if (!item) return null;
@@ -77,61 +53,43 @@ export const PublicLayout = () => {
                     to={to}
                     end={end}
                     className={({ isActive }) => cn(
-                      'flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150',
-                      isActive ? 'text-amber-400' : 'text-slate-500 hover:text-slate-200',
+                      'flex items-center gap-2 whitespace-nowrap rounded-[10px] px-3.5 py-2.5 text-sm transition-colors',
+                      isActive ? 'bg-primary/10 font-semibold text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
-                    style={({ isActive }) => isActive ? {
-                      background: 'rgba(245,158,11,0.1)',
-                      border: '1px solid rgba(245,158,11,0.3)',
-                      boxShadow: '0 0 10px rgba(245,158,11,0.1)',
-                    } : {}}
                   >
                     <Icon className="size-4 shrink-0" />
-                    <span className="hidden sm:inline">{label}</span>
+                    {label}
                   </NavLink>
                 );
               })}
             </nav>
 
-            {/* Right actions */}
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                className="relative flex size-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:text-slate-200"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-                aria-label="Thông báo"
-              >
-                <Bell className="size-4" />
-                <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-amber-400" />
-              </button>
-
+            <div className="ml-auto flex shrink-0 items-center gap-2.5 md:ml-0">
               <Link
                 to="/login"
-                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-amber-400 transition-all hover:text-amber-300"
-                style={{
-                  background: 'rgba(245,158,11,0.1)',
-                  border: '1px solid rgba(245,158,11,0.35)',
-                  boxShadow: '0 0 12px rgba(245,158,11,0.1)',
-                }}
+                className="inline-flex h-11 items-center rounded-[10px] border px-4 text-sm font-semibold transition-colors hover:bg-muted"
               >
                 Đăng nhập
+              </Link>
+              <Link
+                to="/register"
+                className="hidden h-11 items-center rounded-[10px] bg-primary px-[18px] text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex"
+              >
+                Đăng ký đội
               </Link>
             </div>
           </div>
         </header>
 
-        {/* ── Main ────────────────────────────────────────────────── */}
-        <main className="relative mx-auto max-w-[1400px] px-4 py-6">
+        <main className="relative mx-auto w-full max-w-[1240px] flex-1 px-4 py-8 sm:px-6">
           <Outlet />
         </main>
 
-        {/* ── Footer ──────────────────────────────────────────────── */}
-        <footer className="relative mt-16 py-5 text-center text-xs" style={{
-          borderTop: '1px solid rgba(245,158,11,0.1)',
-          color: '#334155',
-        }}>
-          © 2025 Champion League System
-          <span className="mx-2 text-amber-500">•</span>
-          Nền tảng quản lý giải đấu chuyên nghiệp
+        <footer className="relative border-t">
+          <div className="mx-auto flex max-w-[1240px] flex-wrap justify-between gap-4 px-4 py-7 text-[13px] text-muted-foreground sm:px-6">
+            <span>© {new Date().getFullYear()} Champion League System</span>
+            <span>Nền tảng quản lý giải đấu esports</span>
+          </div>
         </footer>
       </div>
     </div>

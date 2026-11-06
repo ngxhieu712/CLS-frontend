@@ -6,7 +6,10 @@ import { renderWithProviders } from '@/test/render-with-providers';
 import { AdminLayout } from './AdminLayout';
 
 vi.mock('@/modules/auth/api/auth.api', () => ({
-  authApi: { getMe: () => Promise.resolve({ _id: 'a1', email: 'admin@example.com', role: 'admin' }) },
+  authApi: {
+    getMe: () => Promise.resolve({ _id: 'a1', email: 'admin@example.com', role: 'admin' }),
+    logout: () => Promise.resolve(),
+  },
 }));
 
 const navItems = [

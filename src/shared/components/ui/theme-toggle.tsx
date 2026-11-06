@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
-import { getTheme, setTheme, type Theme } from '@/shared/lib/utils';
+import { cn, getTheme, setTheme, type Theme } from '@/shared/lib/utils';
 import { Button } from '@/shared/components/ui/button';
 
 const themes: Theme[] = ['light', 'dark', 'system'];
@@ -12,12 +12,18 @@ const themeIcons: Record<Theme, React.ReactNode> = {
 };
 
 const themeLabels: Record<Theme, string> = {
-  light: 'Light',
-  dark: 'Dark',
-  system: 'System',
+  light: 'Sáng',
+  dark: 'Tối',
+  system: 'Theo hệ thống',
 };
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  /** Square icon button, for toolbars where a text label would be too wide. */
+  iconOnly?: boolean;
+  className?: string;
+}
+
+export function ThemeToggle({ iconOnly = false, className }: ThemeToggleProps = {}) {
   // Lazy initialiser: reads localStorage once, on the first render.
   const [current, setCurrent] = useState<Theme>(getTheme);
 
@@ -32,12 +38,12 @@ export function ThemeToggle() {
       variant="ghost"
       size="sm"
       onClick={cycle}
-      title={`Theme: ${themeLabels[current]}`}
-      aria-label={`Switch theme (current: ${themeLabels[current]})`}
-      className="gap-1.5 text-muted-foreground hover:text-foreground"
+      title={`Giao diện: ${themeLabels[current]}`}
+      aria-label={`Đổi giao diện (hiện tại: ${themeLabels[current]})`}
+      className={cn('gap-1.5 text-muted-foreground hover:text-foreground', iconOnly && 'size-10 p-0', className)}
     >
       {themeIcons[current]}
-      <span className="hidden sm:inline">{themeLabels[current]}</span>
+      {!iconOnly && <span className="hidden sm:inline">{themeLabels[current]}</span>}
     </Button>
   );
 }

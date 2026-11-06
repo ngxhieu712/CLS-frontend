@@ -38,12 +38,13 @@ describe('AdminTeamsPage', () => {
     listTeams.mockResolvedValue([team('t1', 'Nova', 'pending'), team('t2', 'Phoenix', 'approved'), team('t3', 'Storm', 'rejected')]);
     renderWithProviders(<AdminTeamsPage />, { route: '/admin/approval' });
 
-    expect(await screen.findByText('Nova')).toBeInTheDocument();
-    expect(screen.queryByText('Phoenix')).not.toBeInTheDocument();
+    const list = await screen.findByRole('region', { name: 'Danh sách hồ sơ' });
+    expect(within(list).getByText('Nova')).toBeInTheDocument();
+    expect(within(list).queryByText('Phoenix')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /^Tất cả/ }));
-    expect(screen.getByText('Phoenix')).toBeInTheDocument();
-    expect(screen.getByText('Storm')).toBeInTheDocument();
+    expect(within(list).getByText('Phoenix')).toBeInTheDocument();
+    expect(within(list).getByText('Storm')).toBeInTheDocument();
   });
 
   it('requires a reason before rejecting a team', async () => {
@@ -51,25 +52,25 @@ describe('AdminTeamsPage', () => {
     reviewTeam.mockResolvedValue(team('t1', 'Nova', 'rejected', { rejectReason: 'Thiếu email liên hệ' }));
     renderWithProviders(<AdminTeamsPage />, { route: '/admin/approval' });
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Từ chối' }));
-    const dialog = screen.getByRole('dialog');
-    const confirm = within(dialog).getByRole('button', { name: 'Từ chối hồ sơ' });
-    expect(confirm).toBeDisabled();
+    const detail = await screen.findByRole('complementary', { name: 'Chi tiết hồ sơ' });
+    const reject = within(detail).getByRole('button', { name: 'Từ chối' });
+    expect(reject).toBeDisabled();
 
-    fireEvent.change(within(dialog).getByPlaceholderText('VD: Bổ sung email liên hệ của đội...'), { target: { value: 'Thiếu email liên hệ' } });
-    fireEvent.click(confirm);
+    fireEvent.change(within(detail).getByLabelText(/Lý do từ chối/), { target: { value: 'Thiếu email liên hệ' } });
+    fireEvent.click(reject);
 
     await waitFor(() => expect(reviewTeam).toHaveBeenCalledWith('t1', { action: 'reject', reason: 'Thiếu email liên hệ' }));
   });
 
-  it('approves a team after confirmation', async () => {
-    listTeams.mockResolvedValue([team('t1', 'Nova', 'pending')]);
-    reviewTeam.mockResolvedValue(team('t1', 'Nova', 'approved'));
-    renderWithProviders(<AdminTeamsPage />, { route: '/admin/approval' });
+  it('opens the team named in ?review and approves it', async () => {
+    listTeams.mockResolvedValue([team('t1', 'Nova', 'pending'), team('t2', 'Storm', 'pending')]);
+    reviewTeam.mockResolvedValue(team('t2', 'Storm', 'approved'));
+    renderWithProviders(<AdminTeamsPage />, { route: '/admin/approval?review=t2', path: '/admin/approval' });
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Duyệt' }));
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Xác nhận duyệt' }));
+    const detail = await screen.findByRole('complementary', { name: 'Chi tiết hồ sơ' });
+    expect(within(detail).getByRole('heading', { name: 'Storm' })).toBeInTheDocument();
+    fireEvent.click(within(detail).getByRole('button', { name: 'Duyệt hồ sơ' }));
 
-    await waitFor(() => expect(reviewTeam).toHaveBeenCalledWith('t1', { action: 'approve' }));
+    await waitFor(() => expect(reviewTeam).toHaveBeenCalledWith('t2', { action: 'approve' }));
   });
 });

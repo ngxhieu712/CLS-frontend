@@ -4,5 +4,5 @@ import { ProfilePage } from './pages/ProfilePage';
 
 export const profileModule: AppModule = {
   routes: [{ path: '/profile', Component: ProfilePage }],
-  navItems: [{ to: '/profile', label: 'Profile', icon: User }],
+  navItems: [{ to: '/profile', label: 'Tài khoản', icon: User }],
 };

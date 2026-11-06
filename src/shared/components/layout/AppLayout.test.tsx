@@ -65,7 +65,7 @@ describe('AppLayout', () => {
     getMe.mockResolvedValue({ _id: '1', email: 'a@b.com', role: 'user' });
     renderLayout();
 
-    fireEvent.click(await screen.findByRole('button', { name: /logout/i }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Đăng xuất' }));
 
     expect(await screen.findByText('login page')).toBeInTheDocument();
     expect(tokenStore.get()).toBeNull();

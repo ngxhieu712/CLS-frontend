@@ -1,380 +1,248 @@
-import { Trophy, Calendar, Flame, ChevronRight, Clock, Zap, Shield } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { MOCK_MATCHES, MOCK_TOURNAMENT, MOCK_GROUPS, MOCK_TEAMS } from '@/shared/lib/mock-data';
-import { MatchCard } from '@/shared/components/match-card';
-import { PublicSidebar } from '@/shared/components/public-sidebar';
+import { TeamAvatar } from '@/shared/components/team-avatar';
+import { MOCK_GROUPS, MOCK_MATCHES, MOCK_TOURNAMENT } from '@/shared/lib/mock-data';
+import { cn } from '@/shared/lib/utils';
+import type { Match, Team } from '@/shared/types/esports.types';
 
-const liveMatches     = MOCK_MATCHES.filter(m => m.status === 'ongoing');
-const upcomingMatches = MOCK_MATCHES.filter(m => m.status === 'scheduled').slice(0, 4);
-const recentMatches   = MOCK_MATCHES.filter(m => m.status === 'confirmed').slice(0, 3);
+const GAMES_IN = { BO1: 1, BO3: 3, BO5: 5 } as const;
 
-const totalConfirmed = MOCK_MATCHES.filter(m => m.status === 'confirmed').length;
-const totalMatches   = MOCK_MATCHES.length;
-const progressPct    = Math.round((totalConfirmed / totalMatches) * 100);
+const liveMatch = MOCK_MATCHES.find((match) => match.status === 'ongoing');
+const upcoming = MOCK_MATCHES
+  .filter((match) => match.status === 'scheduled' && match.teamA && match.teamB)
+  .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
+const latestResult = MOCK_MATCHES
+  .filter((match) => match.status === 'confirmed' || match.status === 'pending_confirm')
+  .sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt))[0];
+// Trận nổi bật: đang đấu, nếu không có thì trận sắp tới gần nhất.
+const featured = liveMatch ?? upcoming[0];
+const highlights = MOCK_MATCHES.filter((match) => match.highlightUrl || match.youtubeUrl).slice(0, 3);
+
+const rankOf = (team?: Team) => {
+  for (const group of MOCK_GROUPS) {
+    const row = group.standings.find(({ teamId }) => teamId === team?._id);
+    if (row) return `#${row.rank} ${group.name}`;
+  }
+  return undefined;
+};
+
+const when = (iso: string) => {
+  const date = new Date(iso);
+  const time = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  return date.toDateString() === new Date().toDateString() ? `Hôm nay · ${time}` : `${date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} · ${time}`;
+};
 
 export const HomePage = () => (
-  <div className="flex gap-5 items-start">
-    {/* ── Main ─────────────────────────────────────────────────── */}
-    <div className="flex-1 min-w-0 space-y-6">
-
-      {/* ── Hero banner ──────────────────────────────────────────── */}
-      <section
-        className="relative overflow-hidden rounded-xl"
-        style={{
-          background: 'linear-gradient(135deg, #0c1428 0%, #0a1020 50%, #111830 100%)',
-          border: '1px solid rgba(155,92,246,0.25)',
-          boxShadow: '0 0 60px rgba(155,92,246,0.08), inset 0 1px rgba(255,255,255,0.04)',
-        }}
-      >
-        {/* Decorative glows */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-20 -top-20 size-72 rounded-full blur-3xl"
-            style={{ background: 'rgba(155,92,246,0.1)' }} />
-          <div className="absolute -bottom-16 left-16 size-56 rounded-full blur-3xl"
-            style={{ background: 'rgba(34,211,238,0.06)' }} />
-          {/* Grid lines */}
-          <div className="absolute inset-0 opacity-[0.025]" style={{
-            backgroundImage: 'linear-gradient(rgba(155,92,246,1) 1px,transparent 1px),linear-gradient(90deg,rgba(155,92,246,1) 1px,transparent 1px)',
-            backgroundSize: '40px 40px',
-          }} />
-        </div>
-
-        {/* Trophy decoration */}
-        <div
-          className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center"
-          style={{
-            width: 130, height: 130,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(155,92,246,0.15) 0%, transparent 70%)',
-          }}
-        >
-          <Trophy
-            className="size-16 opacity-30"
-            style={{ color: 'var(--es-purple)', filter: 'drop-shadow(0 0 20px rgba(155,92,246,0.5))' }}
-          />
-        </div>
-
-        <div className="relative px-6 py-8 md:px-8">
-          {/* Eyebrow */}
-          <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--es-purple)' }}>
-            <Zap className="size-3.5" />
-            Giải đấu đang diễn ra
-            {liveMatches.length > 0 && (
-              <span className="ml-2 flex items-center gap-1 rounded-full px-2 py-0.5"
-                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
-                <span className="inline-block size-1.5 rounded-full bg-red-400" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
-                LIVE
-              </span>
-            )}
-          </div>
-
-          {/* Title with gradient */}
-          <h1
-            className="mb-3 text-2xl font-extrabold leading-tight tracking-tight md:text-3xl"
-            style={{
-              background: 'linear-gradient(90deg, #ffffff 40%, var(--es-purple) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+  <div className="space-y-14">
+    {/* ── Hero ─────────────────────────────────────────────────── */}
+    <section className="flex flex-wrap items-center gap-10 py-4">
+      <div className="min-w-0 flex-[1_1_420px]">
+        <span className="inline-flex rounded-full border px-3 py-1 text-xs font-semibold text-muted-foreground">
+          {MOCK_TOURNAMENT.groupCount * MOCK_TOURNAMENT.teamsPerGroup} đội · {MOCK_TOURNAMENT.groupCount} bảng · {MOCK_TOURNAMENT.format}
+        </span>
+        <h1 className="mt-5 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl">
+          Champion League
+          <span className="block text-primary">{MOCK_TOURNAMENT.name.replace('Champion League ', '')}</span>
+        </h1>
+        <p className="mt-4 max-w-[480px] text-base leading-relaxed text-muted-foreground">
+          Theo dõi trực tiếp tỉ số, lịch thi đấu và bảng xếp hạng của giải đấu esports.
+        </p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Link
+            to={liveMatch ? `/matches/${liveMatch._id}` : '/schedule'}
+            className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-[22px] font-bold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            {MOCK_TOURNAMENT.name}
-          </h1>
-
-          <p className="mb-4 max-w-md text-sm text-slate-400">
-            {MOCK_TOURNAMENT.format} · {MOCK_TOURNAMENT.groupCount} bảng × {MOCK_TOURNAMENT.teamsPerGroup} đội
-            <span className="mx-2 text-slate-700">·</span>
-            Top {MOCK_TOURNAMENT.advanceCount} mỗi bảng đi tiếp
-          </p>
-
-          {/* Progress */}
-          <div className="mb-5 max-w-xs space-y-1.5">
-            <div className="flex justify-between text-xs text-slate-500">
-              <span>Tiến trình giải đấu</span>
-              <span style={{ color: 'var(--es-purple)' }}>{progressPct}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${progressPct}%`,
-                  background: 'linear-gradient(90deg, var(--es-purple), var(--es-cyan))',
-                  boxShadow: '0 0 8px rgba(155,92,246,0.5)',
-                }}
-              />
-            </div>
-            <p className="text-[10px] text-slate-700">{totalConfirmed}/{totalMatches} trận hoàn thành</p>
-          </div>
-
-          {/* CTA buttons */}
-          <div className="flex gap-3">
-            <Link
-              to="/schedule"
-              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition-all hover:text-white"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              <Calendar className="size-4" /> Lịch đấu
-            </Link>
-            <Link
-              to="/bracket"
-              className="flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-bold text-white transition-all hover:opacity-90"
-              style={{
-                background: 'linear-gradient(135deg, var(--es-purple), #6d28d9)',
-                boxShadow: '0 0 20px rgba(155,92,246,0.35)',
-              }}
-            >
-              <Shield className="size-4" /> Xem bracket <ChevronRight className="size-4" />
-            </Link>
-          </div>
+            <Play className="size-4 fill-current" />
+            {liveMatch ? 'Xem trận đang đấu' : 'Xem lịch thi đấu'}
+          </Link>
+          <Link to="/groups" className="inline-flex h-12 items-center rounded-xl border px-[22px] font-semibold transition-colors hover:bg-muted">
+            Bảng xếp hạng
+          </Link>
         </div>
-      </section>
+      </div>
 
-      {/* ── Live matches ─────────────────────────────────────────── */}
-      {liveMatches.length > 0 && (
-        <section>
-          <SectionTitle
-            icon={<Flame className="size-4" style={{ color: '#f87171' }} />}
-            title="Đang diễn ra"
-            badge={`${liveMatches.length} LIVE`}
-            live
-          />
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {liveMatches.map(m => <MatchCard key={m._id} match={m} />)}
+      {featured && <FeaturedMatch match={featured} />}
+    </section>
+
+    {/* ── Upcoming ─────────────────────────────────────────────── */}
+    <section aria-labelledby="upcoming-title">
+      <SectionHead id="upcoming-title" title="Trận sắp diễn ra" link={{ to: '/schedule', label: 'Toàn bộ lịch' }} />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {upcoming.slice(0, latestResult ? 3 : 4).map((match) => <MatchTile key={match._id} match={match} />)}
+        {latestResult && <MatchTile match={latestResult} />}
+      </div>
+      {upcoming.length === 0 && !latestResult && <p className="text-sm text-muted-foreground">Chưa có lịch thi đấu.</p>}
+    </section>
+
+    {/* ── Groups ───────────────────────────────────────────────── */}
+    <section aria-labelledby="groups-title">
+      <SectionHead
+        id="groups-title"
+        title="Vòng bảng"
+        subtitle={`${MOCK_TOURNAMENT.advanceCount} đội đầu mỗi bảng vào Playoff`}
+        link={{ to: '/groups', label: 'Xem đầy đủ' }}
+      />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {MOCK_GROUPS.map((group) => (
+          <div key={group._id} className="overflow-hidden rounded-2xl border bg-card">
+            <h3 className="border-b px-[18px] py-3.5 font-extrabold">{group.name}</h3>
+            <ol>
+              {group.standings.slice(0, MOCK_TOURNAMENT.teamsPerGroup).map((row, index) => {
+                const advances = index < MOCK_TOURNAMENT.advanceCount;
+                return (
+                  <li
+                    key={row.teamId}
+                    className={cn(
+                      'flex items-center gap-3 px-[18px] py-2.5',
+                      index === MOCK_TOURNAMENT.advanceCount - 1 && 'border-b border-dashed',
+                      !advances && 'text-muted-foreground',
+                    )}
+                  >
+                    <span className={cn('w-4 font-extrabold tabular-nums', advances && 'text-primary')}>{index + 1}</span>
+                    <TeamAvatar name={row.teamName} tag={row.teamTag} logoUrl={row.logoUrl} size="xs" />
+                    <span className={cn('min-w-0 flex-1 truncate', advances && 'font-semibold text-foreground')}>{row.teamName}</span>
+                    <span className="font-extrabold tabular-nums">{row.points}</span>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
-        </section>
-      )}
+        ))}
+      </div>
+    </section>
 
-      {/* ── Upcoming ─────────────────────────────────────────────── */}
-      <section>
-        <SectionTitle
-          icon={<Clock className="size-4" style={{ color: 'var(--es-cyan)' }} />}
-          title="Sắp diễn ra"
-          link={{ to: '/schedule', label: 'Xem tất cả' }}
-        />
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {upcomingMatches.map(m => <MatchCard key={m._id} match={m} compact />)}
-        </div>
-      </section>
-
-      {/* ── Standings mini ───────────────────────────────────────── */}
-      <section>
-        <SectionTitle
-          icon={<Trophy className="size-4" style={{ color: 'var(--es-purple)' }} />}
-          title="Bảng xếp hạng"
-          link={{ to: '/groups', label: 'Chi tiết' }}
-        />
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {MOCK_GROUPS.map(g => (
-            <div
-              key={g._id}
-              className="rounded-xl overflow-hidden"
-              style={{ background: 'var(--es-bg-card)', border: '1px solid rgba(255,255,255,0.07)' }}
-            >
-              {/* Group header */}
-              <div
-                className="px-3 py-2"
-                style={{
-                  background: 'rgba(155,92,246,0.08)',
-                  borderBottom: '1px solid rgba(155,92,246,0.15)',
-                }}
-              >
-                <p className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: 'var(--es-purple)' }}>
-                  {g.name}
-                </p>
+    {/* ── Highlights ───────────────────────────────────────────── */}
+    {highlights.length > 0 && (
+      <section aria-labelledby="highlights-title">
+        <SectionHead id="highlights-title" title="Highlight mới nhất" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {highlights.map((match) => (
+            <Link key={match._id} to={`/matches/${match._id}`} className="group space-y-3">
+              <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-2xl border bg-card">
+                <div className="flex items-center gap-4 opacity-40">
+                  <TeamAvatar name={match.teamA?.name ?? 'TBD'} tag={match.teamA?.tag ?? '?'} logoUrl={match.teamA?.logoUrl} size="lg" />
+                  <TeamAvatar name={match.teamB?.name ?? 'TBD'} tag={match.teamB?.tag ?? '?'} logoUrl={match.teamB?.logoUrl} size="lg" />
+                </div>
+                <span className="absolute flex size-14 items-center justify-center rounded-full bg-primary/90 text-primary-foreground transition-transform group-hover:scale-110">
+                  <Play className="size-5 fill-current" />
+                </span>
               </div>
-              <div className="p-3 space-y-2">
-                {g.standings.slice(0, 4).map((row, idx) => (
-                  <div key={row.teamId} className="flex items-center gap-2">
-                    <span
-                      className="w-4 shrink-0 text-[10px] font-bold tabular-nums"
-                      style={{ color: idx < 2 ? 'var(--es-purple)' : '#334155' }}
-                    >
-                      {row.rank}
-                    </span>
-                    <span className={`flex-1 truncate text-xs font-medium ${row.advance ? 'text-slate-200' : 'text-slate-600'}`}>
-                      {row.teamName}
-                    </span>
-                    <span className="text-[9px] tabular-nums text-slate-700">{row.wins}T</span>
-                    <span
-                      className="w-5 text-right text-xs font-bold tabular-nums"
-                      style={{ color: row.advance ? 'var(--es-cyan)' : '#334155' }}
-                    >
-                      {row.points}
-                    </span>
-                  </div>
-                ))}
+              <div>
+                <p className="font-bold group-hover:text-primary">{match.teamA?.name} vs {match.teamB?.name}</p>
+                <p className="text-xs text-muted-foreground">{match.round}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
-
-      {/* ── Recent results ───────────────────────────────────────── */}
-      {recentMatches.length > 0 && (
-        <section>
-          <SectionTitle
-            icon={<Trophy className="size-4" style={{ color: 'var(--es-cyan)' }} />}
-            title="Kết quả mới nhất"
-            link={{ to: '/schedule', label: 'Tất cả kết quả' }}
-          />
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {recentMatches.map(m => <MatchCard key={m._id} match={m} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ── Dữ liệu đội tuyển & chỉ số ──────────────────────────── */}
-      <TeamStatsSection />
-
-    </div>
-
-    {/* ── Sidebar ──────────────────────────────────────────────── */}
-    <PublicSidebar />
+    )}
   </div>
 );
 
-function SectionTitle({
-  icon, title, badge, live, link,
-}: {
-  icon: React.ReactNode; title: string; badge?: string; live?: boolean;
-  link?: { to: string; label: string };
-}) {
+function SectionHead({ id, title, subtitle, link }: { id: string; title: string; subtitle?: string; link?: { to: string; label: string } }) {
   return (
-    <div className="flex items-center gap-2">
-      {icon}
-      <h2 className="text-sm font-bold text-white">{title}</h2>
-      {badge && (
-        <span
-          className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-          style={live
-            ? { background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }
-            : { background: 'rgba(255,255,255,0.05)', color: '#64748b' }}
-        >
-          {badge}
-        </span>
-      )}
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 id={id} className="text-[22px] font-extrabold">{title}</h2>
+        {subtitle && <p className="mt-1 text-muted-foreground">{subtitle}</p>}
+      </div>
       {link && (
-        <Link
-          to={link.to}
-          className="ml-auto flex items-center gap-1 text-[11px] font-medium transition-colors hover:text-white"
-          style={{ color: 'var(--es-purple)' }}
-        >
-          {link.label} <ChevronRight className="size-3" />
+        <Link to={link.to} className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">
+          {link.label} <ArrowRight className="size-4" />
         </Link>
       )}
     </div>
   );
 }
 
-// ─── Mini sparkline SVG ───────────────────────────────────────────────────────
-function Sparkline({ data, color }: { data: number[]; color: string }) {
-  const w = 200, h = 48;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const pts = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * w;
-    const y = h - ((v - min) / range) * (h - 8) - 4;
-    return `${x},${y}`;
+function FeaturedMatch({ match }: { match: Match }) {
+  const isLive = match.status === 'ongoing';
+  const slots = Array.from({ length: GAMES_IN[match.format] }, (_, index) => {
+    const game = match.games.find(({ gameNumber }) => gameNumber === index + 1);
+    if (game?.winnerId) {
+      const winner = game.winnerId === match.teamA?._id ? match.teamA : match.teamB;
+      return { label: `Ván ${index + 1}`, value: `${winner?.name ?? '?'} thắng`, current: false };
+    }
+    const current = isLive && index === match.games.length;
+    return { label: `Ván ${index + 1}`, value: current ? 'Đang đấu' : '—', current };
   });
-  const linePath = `M ${pts.join(' L ')}`;
-  const fillPath = `${linePath} L ${w},${h} L 0,${h} Z`;
-  return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={`grad-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <path d={fillPath} fill={`url(#grad-${color.replace('#','')})`} />
-      <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-// ─── Single stat row ─────────────────────────────────────────────────────────
-function StatRow({ label, value, color, data }: {
-  label: string; value: string | number; color: string; data: number[];
-}) {
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-[11px]">
-        <span className="text-slate-500">{label}</span>
-        <span className="font-bold" style={{ color }}>{value}</span>
-      </div>
-      <Sparkline data={data} color={color} />
-    </div>
-  );
-}
-
-// ─── Team stats card ─────────────────────────────────────────────────────────
-function TeamStatsCard({ teamId }: { teamId: string }) {
-  const team     = MOCK_TEAMS.find(t => t._id === teamId);
-  const group    = MOCK_GROUPS.find(g => g._id === team?.groupId);
-  const standing = group?.standings.find(s => s.teamId === teamId);
-  const [imgErr, setImgErr] = useState(false);
-
-  if (!team) return null;
-
-  const total   = (standing?.wins ?? 0) + (standing?.losses ?? 0);
-  const winRate = total > 0 ? Math.round(((standing?.wins ?? 0) / total) * 100) : 0;
-
-  // Mock sparkline data — 10 điểm ngẫu nhiên nhưng deterministic theo teamId
-  const seed  = teamId.charCodeAt(teamId.length - 1);
-  const mkData = (base: number, amp: number) =>
-    Array.from({ length: 10 }, (_, i) => Math.max(0, base + Math.sin(i * seed) * amp + i * (amp / 10)));
 
   return (
-    <div
-      className="rounded-xl p-4 space-y-3"
-      style={{ background: '#0a1020', border: '1px solid rgba(255,255,255,0.07)' }}
+    <Link
+      to={`/matches/${match._id}`}
+      aria-label={`Trận ${match.teamA?.name} gặp ${match.teamB?.name}`}
+      className="block min-w-0 flex-[1_1_460px] overflow-hidden rounded-[20px] border bg-card shadow-[0_24px_60px_rgba(0,0,0,0.35)] transition-colors hover:border-primary/40"
     >
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div style={{
-          width: 44, height: 44, borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
-          background: '#1a2035', border: '2px solid rgba(255,255,255,0.18)',
-        }}>
-          {team.logoUrl && !imgErr
-            ? <img src={team.logoUrl} alt={team.name} className="w-full h-full object-cover" onError={() => setImgErr(true)} />
-            : <div className="w-full h-full flex items-center justify-center text-xs font-bold text-slate-500">{team.tag.slice(0,3)}</div>
-          }
-        </div>
+      <div className="flex items-center justify-between border-b px-[22px] py-4">
+        {isLive ? (
+          <span className="inline-flex items-center gap-2 rounded-full bg-red-500/14 px-2.5 py-1 text-xs font-bold text-red-300">
+            <span className="size-[7px] animate-pulse rounded-full bg-red-400" /> TRỰC TIẾP
+          </span>
+        ) : (
+          <span className="rounded-full bg-blue-500/14 px-2.5 py-1 text-xs font-bold text-blue-300">{when(match.scheduledAt)}</span>
+        )}
+        <span className="text-xs text-muted-foreground">{match.round} · {match.format}</span>
+      </div>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-[22px] py-9 text-center">
+        <FeaturedTeam team={match.teamA} />
         <div>
-          <p className="font-bold text-white text-sm">{team.name}</p>
-          <p className="text-[10px] text-slate-500">
-            {standing?.wins ?? 0}W · {standing?.losses ?? 0}L · {standing?.points ?? 0} pts
+          <p className="text-5xl font-black tabular-nums tracking-wide sm:text-[56px]">
+            {match.scoreA ?? 0}<span className="px-2.5 text-muted-foreground/40">:</span>{match.scoreB ?? 0}
           </p>
         </div>
+        <FeaturedTeam team={match.teamB} />
       </div>
+      <div className="grid border-t" style={{ gridTemplateColumns: `repeat(${slots.length}, minmax(0, 1fr))` }}>
+        {slots.map((slot) => (
+          <div key={slot.label} className={cn('border-r px-2 py-3.5 text-center last:border-r-0', slot.current && 'bg-primary/6')}>
+            <p className={cn('text-xs', slot.current ? 'text-primary' : 'text-muted-foreground')}>{slot.label}</p>
+            <p className={cn('truncate text-sm font-bold', slot.value === '—' && 'text-muted-foreground')}>{slot.value}</p>
+          </div>
+        ))}
+      </div>
+    </Link>
+  );
+}
 
-      {/* Charts */}
-      <StatRow label="Win rate"   value={`${winRate}%`}     color="#22d3ee" data={mkData(winRate, 15)} />
-      <StatRow label="Kill count" value={seed % 20 + 15}    color="#a78bfa" data={mkData(20, 8)} />
-      <StatRow label="Objective"  value={seed % 30 + 55}    color="#f59e0b" data={mkData(60, 10)} />
+function FeaturedTeam({ team }: { team?: Team }) {
+  const rank = rankOf(team);
+  return (
+    <div className="flex min-w-0 flex-col items-center gap-3">
+      <TeamAvatar name={team?.name ?? 'TBD'} tag={team?.tag ?? '?'} logoUrl={team?.logoUrl} size="xl" />
+      <p className="max-w-full truncate text-[17px] font-extrabold">{team?.name ?? 'TBD'}</p>
+      {rank && <p className="text-xs text-muted-foreground">{rank}</p>}
     </div>
   );
 }
 
-// ─── Team Stats Section ───────────────────────────────────────────────────────
-function TeamStatsSection() {
-  // Top 4 đội đứng đầu BXH
-  const top4 = MOCK_GROUPS.flatMap(g => g.standings.slice(0, 1))
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 4)
-    .map(s => s.teamId);
+function MatchTile({ match }: { match: Match }) {
+  const finished = match.status === 'confirmed' || match.status === 'pending_confirm';
+  const winnerA = finished && (match.scoreA ?? 0) > (match.scoreB ?? 0);
+  const winnerB = finished && (match.scoreB ?? 0) > (match.scoreA ?? 0);
+  const row = (team: Team | undefined, score: number | undefined, won: boolean) => (
+    <div className={cn('flex items-center gap-2.5', finished && !won && 'text-muted-foreground')}>
+      <TeamAvatar name={team?.name ?? 'TBD'} tag={team?.tag ?? '?'} logoUrl={team?.logoUrl} size="sm" />
+      <span className="min-w-0 flex-1 truncate font-bold">{team?.name ?? 'TBD'}</span>
+      {finished && <span className="font-extrabold tabular-nums">{score ?? 0}</span>}
+    </div>
+  );
 
   return (
-    <section>
-      <SectionTitle
-        icon={<Zap className="size-4 text-amber-400" />}
-        title="Dữ liệu đội tuyển & chỉ số"
-        link={{ to: '/teams', label: 'Xem tất cả' }}
-      />
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {top4.map(id => <TeamStatsCard key={id} teamId={id} />)}
+    <Link
+      to={`/matches/${match._id}`}
+      className="flex flex-col gap-4 rounded-2xl border bg-card p-[18px] transition-colors hover:border-primary/40"
+    >
+      <div className="flex justify-between gap-2 text-xs text-muted-foreground">
+        <span className="truncate">{match.round}</span>
+        <span className={cn('shrink-0 font-bold', finished ? 'text-emerald-400' : 'text-foreground')}>
+          {finished ? (match.status === 'confirmed' ? 'Kết thúc' : 'Chờ xác nhận') : when(match.scheduledAt)}
+        </span>
       </div>
-    </section>
+      <div className="space-y-2.5">
+        {row(match.teamA, match.scoreA, winnerA)}
+        {row(match.teamB, match.scoreB, winnerB)}
+      </div>
+      <span className="self-start rounded-full bg-blue-500/14 px-2.5 py-0.5 text-xs font-semibold text-blue-300">{match.format}</span>
+    </Link>
   );
 }

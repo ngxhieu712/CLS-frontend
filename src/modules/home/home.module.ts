@@ -4,5 +4,5 @@ import { HomePage } from './pages/HomePage';
 
 export const homeModule: AppModule = {
   routes: [{ path: '/', Component: HomePage }],
-  navItems: [{ to: '/', label: 'Home', icon: Home }],
+  navItems: [{ to: '/', label: 'Trang chủ', icon: Home }],
 };
