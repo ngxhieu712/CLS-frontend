@@ -57,7 +57,7 @@ export const ProfilePage = () => {
             </CardHeader>
             <CardContent>
               {user ? (
-                <SecuritySettings user={user} />
+                <SecuritySettings />
               ) : (
                 <p className="text-sm text-muted-foreground">Loading…</p>
               )}

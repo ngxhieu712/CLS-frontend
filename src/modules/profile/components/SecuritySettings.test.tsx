@@ -38,7 +38,7 @@ beforeEach(() => {
 describe.skip('SecuritySettings', () => { // Skipped - feature not in BE
   it('sends the new value and stores the returned user', async () => {
     updateSecurity.mockResolvedValue({ ...user, loginOtpEnabled: true });
-    const { queryClient } = renderWithProviders(<SecuritySettings user={user} />);
+    const { queryClient } = renderWithProviders(<SecuritySettings />);
     queryClient.setQueryData(currentUserKey, user);
 
     fireEvent.click(screen.getByRole('switch', { name: 'Email code at login' }));
@@ -50,7 +50,7 @@ describe.skip('SecuritySettings', () => { // Skipped - feature not in BE
 
   it('restores the previous value and shows the error when saving fails', async () => {
     updateSecurity.mockRejectedValue({ response: { data: { message: 'Server down' } } });
-    const { queryClient } = renderWithProviders(<SecuritySettings user={user} />);
+    const { queryClient } = renderWithProviders(<SecuritySettings />);
     queryClient.setQueryData(currentUserKey, user);
 
     fireEvent.click(screen.getByRole('switch', { name: 'Email code at login' }));
@@ -60,7 +60,7 @@ describe.skip('SecuritySettings', () => { // Skipped - feature not in BE
   });
 
   it.skip('reflects an enabled setting', () => { // Skipped
-    renderWithProviders(<SecuritySettings user={user} />);
+    renderWithProviders(<SecuritySettings />);
     expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
   });
 });

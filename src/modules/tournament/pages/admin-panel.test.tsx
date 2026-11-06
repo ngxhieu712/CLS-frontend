@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders } from '@/test/render-with-providers';
 import { AdminSchedulePage } from './AdminSchedulePage';
 import { PlayoffSetupPage } from './PlayoffSetupPage';
-import { TeamApprovalPage } from './TeamApprovalPage';
 import { TeamManagementPage } from './TeamManagementPage';
 import { TournamentSetupPage } from './TournamentSetupPage';
 
@@ -22,14 +21,6 @@ describe('tournament admin panel', () => {
     expect(screen.getByText('5 / 0 điểm')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Lưu cấu hình' }));
     expect(window.localStorage.getItem('champion-league:tournament-settings')).toContain('"groupFormat":"BO1"');
-  });
-
-  it('requires a rejection reason and shows it on the rejected application', () => {
-    renderWithProviders(<TeamApprovalPage />, { route: '/admin/approval?review=app1', path: '/admin/approval' });
-    fireEvent.change(screen.getByPlaceholderText('VD: Bổ sung email liên hệ của đội...'), { target: { value: 'Thiếu email liên hệ' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Từ chối hồ sơ' }));
-
-    expect(screen.getByText('Lý do đã gửi: Thiếu email liên hệ')).toBeInTheDocument();
   });
 
   it('creates a staff account and allows locking it', () => {

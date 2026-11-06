@@ -2,8 +2,9 @@ import { ArrowLeft, Bell, ChevronRight, LogOut, Menu, ShieldCheck, X } from 'luc
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import type { NavItem } from '@/app/module.types';
+import { usePendingTeams } from '@/modules/admin/hooks/use-admin';
 import { useCurrentUser, useLogout } from '@/modules/auth/hooks/use-current-user';
-import { MOCK_APPLICATIONS, MOCK_MATCHES } from '@/shared/lib/mock-data';
+import { MOCK_MATCHES } from '@/shared/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import { ThemeToggle } from '@/shared/components/ui/theme-toggle';
@@ -40,7 +41,7 @@ export const AdminLayout = ({ navItems }: AdminLayoutProps) => {
   const activePage = navItems.find((item) => item.to === location.pathname)
     ?? navItems.find((item) => item.to !== ADMIN_HOME && location.pathname.startsWith(`${item.to}/`));
 
-  const pendingApplications = MOCK_APPLICATIONS.filter(({ status }) => status === 'pending').length;
+  const pendingApplications = usePendingTeams().data?.length ?? 0;
   const pendingResults = MOCK_MATCHES.filter(({ status }) => status === 'pending_confirm').length;
   const pendingCount = pendingApplications + pendingResults;
   // Work waiting in a section, shown as a badge next to its link.

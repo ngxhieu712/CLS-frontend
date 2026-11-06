@@ -5,7 +5,6 @@ import type { AppModule } from '@/app/module.types';
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(({ AdminDashboardPage: Component }) => ({ default: Component })));
 const TournamentSetupPage = lazy(() => import('./pages/TournamentSetupPage').then(({ TournamentSetupPage: Component }) => ({ default: Component })));
 const TeamManagementPage = lazy(() => import('./pages/TeamManagementPage').then(({ TeamManagementPage: Component }) => ({ default: Component })));
-const TeamApprovalPage = lazy(() => import('./pages/TeamApprovalPage').then(({ TeamApprovalPage: Component }) => ({ default: Component })));
 const DrawPage = lazy(() => import('./pages/DrawPage').then(({ DrawPage: Component }) => ({ default: Component })));
 const AdminSchedulePage = lazy(() => import('./pages/AdminSchedulePage').then(({ AdminSchedulePage: Component }) => ({ default: Component })));
 const PlayoffSetupPage = lazy(() => import('./pages/PlayoffSetupPage').then(({ PlayoffSetupPage: Component }) => ({ default: Component })));
@@ -16,7 +15,6 @@ export const tournamentModule: AppModule = {
     { path: '/admin',             Component: AdminDashboardPage  },
     { path: '/admin/tournament',  Component: TournamentSetupPage },
     { path: '/admin/teams',       Component: TeamManagementPage  },
-    { path: '/admin/approval',    Component: TeamApprovalPage    },
     { path: '/admin/draw',        Component: DrawPage            },
     { path: '/admin/schedule',    Component: AdminSchedulePage   },
     { path: '/admin/playoff',     Component: PlayoffSetupPage    },
